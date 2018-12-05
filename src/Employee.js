@@ -5,6 +5,7 @@ import "react-table/react-table.css";
 import axios from "axios";
 import debounce from "lodash/debounce";
 
+
 class Employee extends React.Component {
   constructor(props) {
     super(props);
@@ -13,12 +14,14 @@ class Employee extends React.Component {
       dep_data: {},
       isLoading: false,
       filterState: {},
-      testService: {},
-      pages: 0
+      page: null
+
     };
   }
 
+
   handleChange = (onChange, identifier) => {
+    //console.log("in handlechange");
     return e => {
       this.setState({
         filterState: {
@@ -44,41 +47,35 @@ class Employee extends React.Component {
     return defaultValue;
   };
 
-  fetchDepartmentDetails = var2 => {
-    if (!this.state.dep_data[var2]) {
-      axios
-        .get(var2)
-        .then(json => {
-          const data1 = json.data;
-          this.setState({
-            dep_data: { ...this.state.dep_data, [var2]: data1 }
-          });
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
-    }
-  };
 
   fetchGridData = debounce((state, instance) => {
+    console.log(state, instance);
+    console.log(state.sorted["0"]);
     this.setState({ isLoading: true });
-    console.log(state);
-    console.log(instance);
+    //const params = { page: state.page, size: state.pageSize }
     axios
-      .get("https://spring-employee.herokuapp.com/employees")
+      .get("https://spring-employee.herokuapp.com/employees", {
+        params: {
+          page: state.page,
+          size: state.pageSize,
+          sort: state.sorted["0"] ? (state.sorted["0"].id + "," + (state.sorted["0"].desc === false ? "desc" : "asc")) : "empid"
+        }
+      })
+      //.then(json => console.log(json))
+      // }
       .then(json =>
-        json.data._embedded.employees.map(result => ({
-          ID: result.empid,
-          Name: result.empname,
-          Skill: result.skill,
-          Salary: result.salary,
-          Grade: result.grade,
-          City: result.city,
-          Country: result.country,
-          DOJ: result.doj,
+        json.data.content.map(result => ({
+          empid: result.empid,
+          empname: result.empname,
+          skill: result.skill,
+          salary: result.salary,
+          grade: result.grade,
+          city: result.city,
+          country: result.country,
+          doj: result.doj,
           DeptName: result.deptid.deptname,
-          Designation: result.designation,
-          dep_link: result._links.deptid.href
+          designation: result.designation,
+          Dep_head: result.deptid
         }))
       )
 
@@ -90,27 +87,29 @@ class Employee extends React.Component {
         })
       )
 
-      .catch(function(error) {
+      .catch(function (error) {
         console.log(error);
       });
-  }, 500);
+  }
+    , 500);
 
   render() {
-    const { emp_data, isLoading } = this.state;
+    const { emp_data, isLoading, page, sort } = this.state;
     const content = (
       <div>
         <ReactTable
           data={emp_data}
           freezeWhenExpanded={true}
+          pages={page}
+          sorted={sort}
           filterable
-          manual
+          manual={true}
           loading={isLoading}
           onFetchData={this.fetchGridData}
           columns={[
             {
               Header: "ID",
-              accessor: "ID",
-              //sortable: true
+              accessor: "empid",
               Filter: ({ filter, onChange }) => (
                 <input
                   type="text"
@@ -124,7 +123,7 @@ class Employee extends React.Component {
             },
             {
               Header: "Name",
-              accessor: "Name",
+              accessor: "empname",
               Filter: ({ filter, onChange }) => (
                 <input
                   type="text"
@@ -141,7 +140,7 @@ class Employee extends React.Component {
 
             {
               Header: "Skill",
-              accessor: "Skill",
+              accessor: "skill",
               Filter: ({ filter, onChange }) => (
                 <input
                   type="text"
@@ -157,15 +156,15 @@ class Employee extends React.Component {
             },
             {
               Header: "DOJ",
-              accessor: "DOJ"
+              accessor: "doj"
             },
             {
               Header: "Designation",
-              accessor: "Designation",
+              accessor: "designation",
               minWidth: 110,
               Filter: ({ filter, onChange }) => (
                 <select
-                  onChange={this.handleChange(onChange, "Skill")}
+                  onChange={this.handleChange(onChange, "Designation")}
                   value={this.getFilterValueFromState("Designation", "all")}
                   style={{ width: "100%" }}
                 >
@@ -186,7 +185,7 @@ class Employee extends React.Component {
             },
             {
               Header: "Grade",
-              accessor: "Grade",
+              accessor: "grade",
               Filter: ({ filter, onChange }) => (
                 <input
                   type="text"
@@ -202,7 +201,7 @@ class Employee extends React.Component {
             },
             {
               Header: "Salary",
-              accessor: "Salary",
+              accessor: "salary",
               Filter: ({ filter, onChange }) => (
                 <input
                   type="text"
@@ -218,7 +217,7 @@ class Employee extends React.Component {
             },
             {
               Header: "City",
-              accessor: "City",
+              accessor: "city",
               Filter: ({ filter, onChange }) => (
                 <input
                   type="text"
@@ -234,7 +233,7 @@ class Employee extends React.Component {
             },
             {
               Header: "Country",
-              accessor: "Country",
+              accessor: "country",
               Filter: ({ filter, onChange }) => (
                 <input
                   type="text"
@@ -258,65 +257,31 @@ class Employee extends React.Component {
               }
             };
           }}
-          //freezeWhenExpanded={true}
+
           SubComponent={rows => {
-            const { dep_data } = this.state;
-            let var2 = "";
-            let var1 = rows.original.dep_link;
-            for (let i = 0; i < var1.length; i++) {
-              if (var1[i] !== "{") {
-                var2 += var1[i];
-              }
-              if (var1[i] === "{") {
-                break;
-              }
-            }
-            const dep = dep_data[var2];
-            //debugger;
-            if (dep) {
-              return (
-                <div className="Posts">
-                  <header>
-                    <ul>
-                      <li>Dep ID : {dep.deptid}</li>
-                      <li>Dep Name : {dep.deptname}</li>
-                      <li>Dep Head : {dep.depthead.empname}</li>
-                      <li>City : {dep.depthead.city}</li>
-                      <li>Country : {dep.depthead.country}</li>
-                      <li>Designation : {dep.depthead.designation}</li>
-                      <li>DOJ : {dep.depthead.doj}</li>
-                      <li>Grade : {dep.depthead.grade}</li>
-                      <li>Salary : {dep.depthead.salary}</li>
-                      <li>Skill : {dep.depthead.skill}</li>
-                    </ul>
-                  </header>
-                </div>
-              );
-            } else {
-              return <div className="Posts">Loading...</div>;
-            }
-          }}
-          getTrProps={(state, rowInfo, column, instance) => {
-            return {
-              onClick: e => {
-                let var2 = "";
-                console.log(e);
-                console.log(rowInfo);
+            console.log(rows);
+            const dep = rows.original.Dep_head.depthead;
+            return (
+              <div className="Posts">
+                <header>
+                  <ul>
+                    <li>Dep ID : {rows.original.Dep_head.deptid}</li>
+                    <li>Dep Name : {rows.original.Dep_head.deptname}</li>
+                    <li>Dep Head : {dep.empname}</li>
+                    <li>City : {dep.city}</li>
+                    <li>Country : {dep.country}</li>
+                    <li>Designation : {dep.designation}</li>
+                    <li>DOJ : {dep.doj}</li>
+                    <li>Grade : {dep.grade}</li>
+                    <li>Salary : {dep.salary}</li>
+                    <li>Skill : {dep.skill}</li>
+                  </ul>
+                </header>
+              </div>
+            );
+          }
+          }
 
-                let var1 = rowInfo.row._original.dep_link;
-                for (let i = 0; i < var1.length; i++) {
-                  if (var1[i] !== "{") {
-                    var2 += var1[i];
-                  }
-                  if (var1[i] === "{") {
-                    break;
-                  }
-                }
-
-                this.fetchDepartmentDetails(var2);
-              }
-            };
-          }}
         />
       </div>
     );
