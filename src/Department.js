@@ -52,6 +52,68 @@ class Department extends React.Component {
       onChange();
     };
   };
+  getFilterValueFromState = (identifier, defaultValue = "") => {
+    const filterState = this.state.filterState;
+    if (!filterState) {
+      return defaultValue;
+    }
+    if (
+      typeof filterState[identifier] !== "undefined" ||
+      filterState[identifier] !== null
+    ) {
+      return filterState[identifier];
+    }
+    return defaultValue;
+  };
+  fetchGridData = debounce((state, instance) => {
+    let url = "";
+    const params = {
+      page: state.page,
+      size: state.pageSize,
+      sort: state.sorted["0"]
+        ? state.sorted["0"].id +
+        "," +
+        (state.sorted["0"].desc === false ? "desc" : "asc")
+        : "deptid"
+    };
+    if (Object.keys(this.state.filterState).length !== 0) {
+      url = "/search/byadvsearch?advsearch=( ";
+      let count = 0;
+      for (let key in this.state.filterState) {
+        if (this.state.filterState.hasOwnProperty(key)) {
+          let val = this.state.filterState[key];
+          count++;
+          if (count === 1) url += key + ":" + val;
+          else url += "and" + key + ":" + val;
+        }
+      }
+      url += " )";
+    }
+    this.setState({ isLoading: true });
+    console.log(state);
+    console.log(instance);
+    axios
+      .get("https://spring-employee.herokuapp.com/departments" + url, {
+        params
+      })
+      .then(json =>
+        json.data.content.map(result => ({
+          deptid: result.deptid,
+          deptname: result.deptname,
+          DeptHead: result.depthead.empname
+        }))
+      )
+
+      .then(newData =>
+        this.setState({
+          ...this.state,
+          dep_data: newData,
+          isLoading: false
+        })
+      )
+  }
+  )
+
 
 
   render() {
@@ -61,7 +123,8 @@ class Department extends React.Component {
         <ReactTable
           data={dep_data}
           filterable
-          manual={true}
+          manual
+          minRows={0}
           loading={isLoading}
           onFetchData={this.fetchGridData}
           columns={[
@@ -71,9 +134,11 @@ class Department extends React.Component {
               Filter: ({ filter, onChange }) => (
                 <input
                   type="text"
+                  size="8"
+                  onChange={this.handleChange(onChange, "deptid")}
                   value={
-                    this.state.filterState.Deptid
-                      ? this.state.filterState.Deptid
+                    this.state.filterState.deptid
+                      ? this.state.filterState.deptid
                       : ""
                   }
                   onChange={this.handleChange(onChange, "Deptid")}
@@ -86,9 +151,11 @@ class Department extends React.Component {
               Filter: ({ filter, onChange }) => (
                 <input
                   type="text"
+                  size="8"
+                  onChange={this.handleChange(onChange, "deptname")}
                   value={
-                    this.state.filterState.Department
-                      ? this.state.filterState.Department
+                    this.state.filterState.deptname
+                      ? this.state.filterState.deptname
                       : ""
                   }
                   onChange={this.handleChange(onChange, "Department")}

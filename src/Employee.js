@@ -13,7 +13,7 @@ class Employee extends React.Component {
       dep_data: {},
       isLoading: false,
       filterState: {},
-      page: null
+      page: -1
 
     };
   }
@@ -21,11 +21,11 @@ class Employee extends React.Component {
 
   handleChange = (onChange, identifier) => {
     //console.log("in handlechange");
-    return e => {
+    return event => {
       this.setState({
         filterState: {
           ...this.state.filterState,
-          [identifier]: e.target.value
+          [identifier]: event.target.value
         }
       });
 
@@ -47,69 +47,71 @@ class Employee extends React.Component {
     return defaultValue;
   };
 
+  fetchDepartmentDetails = async deptId => {
+    if (!this.state.dep_data[deptId]) {
+      const json = await axios.get(deptId);
 
-  fetchGridData = debounce((state, instance) => {
-    // console.log(state);
-    // console.log(instance);
-    this.setState({ isLoading: true });
-    // console.log(Object.keys(this.state.filterState));
-    // console.log(Object.values(this.state.filterState));
-    //console.log(this.state.filtered);
-    let url = "";
-    if (Object.keys(this.state.filterState).length !== 0) {
-      url = "/search/byadvsearch?advsearch=( ";
-      let count = 0;
-      for (let key in this.state.filterState) {
-        if ((this.state.filterState).hasOwnProperty(key)) {
-          let val = this.state.filterState[key];
-          count++;
-          if (count === 1)
-            url += key + ":" + val;
-          else
-            url += " and " + key + ":" + val;
-        }
-      }
-      url += " )"
-    }
-
-    axios
-      .get("https://spring-employee.herokuapp.com/employees" + url, {
-        params: {
-          page: state.page,
-          size: state.pageSize,
-          sort: state.sorted["0"] ? (state.sorted["0"].id + "," + (state.sorted["0"].desc === false ? "desc" : "asc")) : "empid"
-        }
-      })
-      //.then(json => console.log(json))
-      // }
-      .then(json =>
-        json.data.content.map(result => ({
-          empid: result.empid,
-          empname: result.empname,
-          skill: result.skill,
-          salary: result.salary,
-          grade: result.grade,
-          city: result.city,
-          country: result.country,
-          doj: result.doj,
-          designation: result.designation,
-          Dep_head: result.deptid
-        }))
-      )
-
-      .then(newData =>
-        this.setState({
-          ...this.state,
-          emp_data: newData,
-          isLoading: false
-        })
-      )
-
-      .catch(function (error) {
-        console.log(error);
+      const deptData = json.data;
+      this.setState({
+        dep_data: { ...this.state.dep_data, [deptId]: deptData }
       });
-  }
-    , 500);
+    }
+  };
+
+  fetchGridData = debounce(async (state, instance) => {
+    let url = "";
+    const params = {
+      page: state.page,
+      size: state.pageSize,
+      sort: state.sorted["0"]
+        ? state.sorted["0"].id +
+        "," +
+        (state.sorted["0"].desc === false ? "desc" : "asc")
+        : "empid"
+    };
+
+    const filterKeys = Object.keys(this.state.filterState);
+    if (filterKeys.length !== 0) {
+      url = "/search/byadvsearch?advsearch=( ";
+      url += filterKeys
+        .map(key => {
+          return this.state.filterState[key]
+            ? key + ":" + this.state.filterState[key]
+            : "";
+        })
+        .join(" and ");
+      url += " )";
+    }
+    this.setState({
+      isLoading: true
+    });
+
+    const json = await axios.get(
+      "https://spring-employee.herokuapp.com/employees" + url,
+      { params }
+    );
+
+    const newData = json.data.content.map(result => ({
+      empid: result.empid,
+      empname: result.empname,
+      skill: result.skill,
+      salary: result.salary,
+      grade: result.grade,
+      city: result.city,
+      country: result.country,
+      doj: result.doj,
+      designation: result.designation,
+      DeptName: result.deptid.deptname,
+      Dep_head: result.deptid
+    }));
+
+    this.setState({
+      ...this.state,
+      emp_data: newData,
+      isLoading: false,
+      pages: json.data.page.totalPages
+    });
+  }, 500);
 
   render() {
     const { emp_data, isLoading } = this.state;
@@ -118,8 +120,13 @@ class Employee extends React.Component {
         <ReactTable
           data={emp_data}
           freezeWhenExpanded={true}
-          filterable={true}
-          manual={true}
+          filterable
+          pages={pages}
+          showPagination={true}
+          showPaginationTop={true}
+          showPaginationBottom={true}
+          manual
+          minRows={0}
           loading={isLoading}
           onFetchData={this.fetchGridData}
           columns={[
@@ -132,7 +139,9 @@ class Employee extends React.Component {
                   size="8"
                   onChange={this.handleChange(onChange, "empid")}
                   value={
-                    this.state.filterState.empid ? this.state.filterState.empid : ""
+                    this.state.filterState.empid
+                      ? this.state.filterState.empid
+                      : ""
                   }
                 />
               )
@@ -172,7 +181,17 @@ class Employee extends React.Component {
             },
             {
               Header: "DOJ",
-              accessor: "doj"
+              accessor: "doj",
+              Filter: ({ filter, onChange }) => (
+                <input
+                  type="text"
+                  size="8"
+                  onChange={this.handleChange(onChange, "doj")}
+                  value={
+                    this.state.filterState.DOJ ? this.state.filterState.DOJ : ""
+                  }
+                />
+              )
             },
             {
               Header: "Designation",
@@ -182,14 +201,16 @@ class Employee extends React.Component {
                 <select
                   onChange={this.handleChange(onChange, "designation")}
                   value={this.getFilterValueFromState("designation", "all")}
-                  style={{ width: "100%" }}
+                  style={{
+                    width: "100%"
+                  }}
                 >
-                  <option value="all">Show all</option>
+                  <option value="all"> Show all </option>
                   <option value="protector of Asgard">
                     protector of Asgard
                   </option>
-                  <option value="Sr.manager">Sr.manager</option>
-                  <option value="developer">developer</option>
+                  <option value="Sr.manager"> Sr.manager </option>
+                  <option value="developer"> developer </option>
                 </select>
               )
             },
@@ -291,11 +312,33 @@ class Employee extends React.Component {
           }
           }
 
-        />
+          if (dep.empname) {
+              return (
+                <div className="Posts">
+          <header>
+            <ul>
+              <li> Dep ID: {rows.original.Dep_head.deptid} </li>
+              <li> Dep Name: {rows.original.Dep_head.deptname} </li>
+              <li> Dep Head: {dep.empname} </li>
+              <li> City: {dep.city} </li>
+              <li> Country: {dep.country} </li>
+              <li> Designation: {dep.designation} </li>
+              <li> DOJ: {dep.doj} </li> <li> Grade: {dep.grade} </li>
+              <li> Salary: {dep.salary} </li>
+              <li> Skill: {dep.skill} </li>
+            </ul>
+          </header>
+        </div>
+        );
+            } else {
+              return <div className="Posts"> Loading... </div>;
+      }
+    }}
+  />
       </div>
     );
 
-    return <div>{content}</div>;
+    return <div> {content} </div>;
   }
 }
 
