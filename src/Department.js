@@ -19,12 +19,18 @@ class Department extends React.Component {
   fetchGridData = debounce((state, instance) => {
     this.setState({ isLoading: true });
     axios
-      .get("https://spring-employee.herokuapp.com/departments")
+      .get("https://spring-employee.herokuapp.com/departments", {
+        params: {
+          page: state.page,
+          size: state.pageSize,
+          sort: state.sorted["0"] ? (state.sorted["0"].id + "," + (state.sorted["0"].desc === false ? "desc" : "asc")) : "empid"
+        }
+      })
       .then(json =>
         json.data.content.map(result => ({
-          Deptid: result.deptid,
-          Department: result.deptname,
-          DeptHead: result.depthead.empname
+          deptid: result.deptid,
+          department: result.deptname,
+          deptHead: result.depthead.empname
         }))
       )
       .then(newData => {
@@ -61,7 +67,7 @@ class Department extends React.Component {
           columns={[
             {
               Header: "Deptid",
-              accessor: "Deptid",
+              accessor: "deptid",
               Filter: ({ filter, onChange }) => (
                 <input
                   type="text"
@@ -76,7 +82,7 @@ class Department extends React.Component {
             },
             {
               Header: "Department",
-              accessor: "Department",
+              accessor: "deptname",
               Filter: ({ filter, onChange }) => (
                 <input
                   type="text"
@@ -91,7 +97,7 @@ class Department extends React.Component {
             },
             {
               Header: "DeptHead",
-              accessor: "DeptHead",
+              accessor: "deptHead",
               Filter: ({ filter, onChange }) => (
                 <input
                   type="text"

@@ -5,7 +5,6 @@ import "react-table/react-table.css";
 import axios from "axios";
 import debounce from "lodash/debounce";
 
-
 class Employee extends React.Component {
   constructor(props) {
     super(props);
@@ -29,6 +28,7 @@ class Employee extends React.Component {
           [identifier]: e.target.value
         }
       });
+
       onChange();
     };
   };
@@ -49,12 +49,31 @@ class Employee extends React.Component {
 
 
   fetchGridData = debounce((state, instance) => {
-    console.log(state, instance);
-    console.log(state.sorted["0"]);
+    // console.log(state);
+    // console.log(instance);
     this.setState({ isLoading: true });
-    //const params = { page: state.page, size: state.pageSize }
+    // console.log(Object.keys(this.state.filterState));
+    // console.log(Object.values(this.state.filterState));
+    //console.log(this.state.filtered);
+    let url = "";
+    if (Object.keys(this.state.filterState).length !== 0) {
+      url = "/search/byadvsearch?advsearch=( ";
+      let count = 0;
+      for (let key in this.state.filterState) {
+        if ((this.state.filterState).hasOwnProperty(key)) {
+          let val = this.state.filterState[key];
+          count++;
+          if (count === 1)
+            url += key + ":" + val;
+          else
+            url += " and " + key + ":" + val;
+        }
+      }
+      url += " )"
+    }
+
     axios
-      .get("https://spring-employee.herokuapp.com/employees", {
+      .get("https://spring-employee.herokuapp.com/employees" + url, {
         params: {
           page: state.page,
           size: state.pageSize,
@@ -73,7 +92,6 @@ class Employee extends React.Component {
           city: result.city,
           country: result.country,
           doj: result.doj,
-          DeptName: result.deptid.deptname,
           designation: result.designation,
           Dep_head: result.deptid
         }))
@@ -94,15 +112,13 @@ class Employee extends React.Component {
     , 500);
 
   render() {
-    const { emp_data, isLoading, page, sort } = this.state;
+    const { emp_data, isLoading } = this.state;
     const content = (
       <div>
         <ReactTable
           data={emp_data}
           freezeWhenExpanded={true}
-          pages={page}
-          sorted={sort}
-          filterable
+          filterable={true}
           manual={true}
           loading={isLoading}
           onFetchData={this.fetchGridData}
@@ -114,9 +130,9 @@ class Employee extends React.Component {
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "ID")}
+                  onChange={this.handleChange(onChange, "empid")}
                   value={
-                    this.state.filterState.ID ? this.state.filterState.ID : ""
+                    this.state.filterState.empid ? this.state.filterState.empid : ""
                   }
                 />
               )
@@ -128,10 +144,10 @@ class Employee extends React.Component {
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "Name")}
+                  onChange={this.handleChange(onChange, "empname")}
                   value={
-                    this.state.filterState.Name
-                      ? this.state.filterState.Name
+                    this.state.filterState.empname
+                      ? this.state.filterState.empname
                       : ""
                   }
                 />
@@ -145,10 +161,10 @@ class Employee extends React.Component {
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "Skill")}
+                  onChange={this.handleChange(onChange, "skill")}
                   value={
-                    this.state.filterState.Skill
-                      ? this.state.filterState.Skill
+                    this.state.filterState.skill
+                      ? this.state.filterState.skill
                       : ""
                   }
                 />
@@ -164,8 +180,8 @@ class Employee extends React.Component {
               minWidth: 110,
               Filter: ({ filter, onChange }) => (
                 <select
-                  onChange={this.handleChange(onChange, "Designation")}
-                  value={this.getFilterValueFromState("Designation", "all")}
+                  onChange={this.handleChange(onChange, "designation")}
+                  value={this.getFilterValueFromState("designation", "all")}
                   style={{ width: "100%" }}
                 >
                   <option value="all">Show all</option>
@@ -178,22 +194,16 @@ class Employee extends React.Component {
               )
             },
             {
-              Header: "DeptName",
-              accessor: "DeptName",
-              filterMethod: (filter, row) =>
-                row[filter.id].startsWith(filter.value)
-            },
-            {
               Header: "Grade",
               accessor: "grade",
               Filter: ({ filter, onChange }) => (
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "Grade")}
+                  onChange={this.handleChange(onChange, "grade")}
                   value={
-                    this.state.filterState.Grade
-                      ? this.state.filterState.Grade
+                    this.state.filterState.grade
+                      ? this.state.filterState.grade
                       : ""
                   }
                 />
@@ -206,10 +216,10 @@ class Employee extends React.Component {
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "Salary")}
+                  onChange={this.handleChange(onChange, "salary")}
                   value={
-                    this.state.filterState.Salary
-                      ? this.state.filterState.Salary
+                    this.state.filterState.salary
+                      ? this.state.filterState.salary
                       : ""
                   }
                 />
@@ -222,10 +232,10 @@ class Employee extends React.Component {
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "City")}
+                  onChange={this.handleChange(onChange, "city")}
                   value={
-                    this.state.filterState.City
-                      ? this.state.filterState.City
+                    this.state.filterState.city
+                      ? this.state.filterState.city
                       : ""
                   }
                 />
@@ -238,10 +248,10 @@ class Employee extends React.Component {
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "Country")}
+                  onChange={this.handleChange(onChange, "country")}
                   value={
-                    this.state.filterState.Country
-                      ? this.state.filterState.Country
+                    this.state.filterState.country
+                      ? this.state.filterState.country
                       : ""
                   }
                 />
@@ -259,7 +269,6 @@ class Employee extends React.Component {
           }}
 
           SubComponent={rows => {
-            console.log(rows);
             const dep = rows.original.Dep_head.depthead;
             return (
               <div className="Posts">
