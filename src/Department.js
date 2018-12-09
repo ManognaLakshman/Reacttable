@@ -26,7 +26,7 @@ class Department extends React.Component {
         ? state.sorted["0"].id +
         "," +
         (state.sorted["0"].desc === false ? "desc" : "asc")
-        : "empid"
+        : "Deptid"
     };
 
     const filterKeys = Object.keys(this.state.filterState);
@@ -46,20 +46,20 @@ class Department extends React.Component {
     });
 
     const json = await axios.get(
-      "https://spring-employee.herokuapp.com/employees" + url,
+      "https://spring-employee.herokuapp.com/departments" + url,
       { params }
     );
 
     const newData = json.data.content.map(result => ({
       deptid: result.deptid,
-      department: result.deptname,
+      deptname: result.deptname,
       deptHead: result.depthead.empname
 
     }));
 
     this.setState({
       ...this.state,
-      emp_data: newData,
+      dep_data: newData,
       isLoading: false,
       pages: json.data.page.totalPages
     });
@@ -76,6 +76,8 @@ class Department extends React.Component {
       onChange();
     };
   };
+
+
   getFilterValueFromState = (identifier, defaultValue = "") => {
     const filterState = this.state.filterState;
     if (!filterState) {
@@ -89,55 +91,6 @@ class Department extends React.Component {
     }
     return defaultValue;
   };
-  fetchGridData = debounce((state, instance) => {
-    let url = "";
-    const params = {
-      page: state.page,
-      size: state.pageSize,
-      sort: state.sorted["0"]
-        ? state.sorted["0"].id +
-        "," +
-        (state.sorted["0"].desc === false ? "desc" : "asc")
-        : "deptid"
-    };
-    if (Object.keys(this.state.filterState).length !== 0) {
-      url = "/search/byadvsearch?advsearch=( ";
-      let count = 0;
-      for (let key in this.state.filterState) {
-        if (this.state.filterState.hasOwnProperty(key)) {
-          let val = this.state.filterState[key];
-          count++;
-          if (count === 1) url += key + ":" + val;
-          else url += "and" + key + ":" + val;
-        }
-      }
-      url += " )";
-    }
-    this.setState({ isLoading: true });
-    console.log(state);
-    console.log(instance);
-    axios
-      .get("https://spring-employee.herokuapp.com/departments" + url, {
-        params
-      })
-      .then(json =>
-        json.data.content.map(result => ({
-          deptid: result.deptid,
-          deptname: result.deptname,
-          deptHead: result.depthead.empname
-        }))
-      )
-
-      .then(newData =>
-        this.setState({
-          ...this.state,
-          dep_data: newData,
-          isLoading: false
-        })
-      )
-  }
-  )
-
 
 
   render() {
