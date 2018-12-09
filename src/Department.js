@@ -11,34 +11,58 @@ class Department extends React.Component {
     this.state = {
       dep_data: [],
       isLoading: false,
-      filterState: {}
+      filterState: {},
+      pages: -1
     };
 
   }
 
-  fetchGridData = debounce((state, instance) => {
-    this.setState({ isLoading: true });
-    axios
-      .get("https://spring-employee.herokuapp.com/departments", {
-        params: {
-          page: state.page,
-          size: state.pageSize,
-          sort: state.sorted["0"] ? (state.sorted["0"].id + "," + (state.sorted["0"].desc === false ? "desc" : "asc")) : "empid"
-        }
-      })
-      .then(json =>
-        json.data.content.map(result => ({
-          deptid: result.deptid,
-          department: result.deptname,
-          deptHead: result.depthead.empname
-        }))
-      )
-      .then(newData => {
-        this.setState({ dep_data: newData, isLoading: false });
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+  fetchGridData = debounce(async (state, instance) => {
+    let url = "";
+    const params = {
+      page: state.page,
+      size: state.pageSize,
+      sort: state.sorted["0"]
+        ? state.sorted["0"].id +
+        "," +
+        (state.sorted["0"].desc === false ? "desc" : "asc")
+        : "empid"
+    };
+
+    const filterKeys = Object.keys(this.state.filterState);
+    if (filterKeys.length !== 0) {
+      url = "/search/byadvsearch?advsearch=( ";
+      url += filterKeys
+        .map(key => {
+          return this.state.filterState[key]
+            ? key + ":" + this.state.filterState[key]
+            : "";
+        })
+        .join(" and ");
+      url += " )";
+    }
+    this.setState({
+      isLoading: true
+    });
+
+    const json = await axios.get(
+      "https://spring-employee.herokuapp.com/employees" + url,
+      { params }
+    );
+
+    const newData = json.data.content.map(result => ({
+      deptid: result.deptid,
+      department: result.deptname,
+      deptHead: result.depthead.empname
+
+    }));
+
+    this.setState({
+      ...this.state,
+      emp_data: newData,
+      isLoading: false,
+      pages: json.data.page.totalPages
+    });
   }, 500);
 
   handleChange = (onChange, identifier) => {
@@ -100,7 +124,7 @@ class Department extends React.Component {
         json.data.content.map(result => ({
           deptid: result.deptid,
           deptname: result.deptname,
-          DeptHead: result.depthead.empname
+          deptHead: result.depthead.empname
         }))
       )
 
@@ -117,12 +141,16 @@ class Department extends React.Component {
 
 
   render() {
-    const { dep_data, isLoading } = this.state;
+    const { dep_data, isLoading, pages } = this.state;
     return (
       <div>
         <ReactTable
           data={dep_data}
           filterable
+          pages={pages}
+          showPagination={true}
+          showPaginationTop={true}
+          showPaginationBottom={true}
           manual
           minRows={0}
           loading={isLoading}
@@ -141,7 +169,7 @@ class Department extends React.Component {
                       ? this.state.filterState.deptid
                       : ""
                   }
-                  onChange={this.handleChange(onChange, "Deptid")}
+
                 />
               )
             },
@@ -158,7 +186,7 @@ class Department extends React.Component {
                       ? this.state.filterState.deptname
                       : ""
                   }
-                  onChange={this.handleChange(onChange, "Department")}
+
                 />
               )
             },
@@ -169,11 +197,11 @@ class Department extends React.Component {
                 <input
                   type="text"
                   value={
-                    this.state.filterState.DeptHead
-                      ? this.state.filterState.DeptHead
+                    this.state.filterState.deptHead
+                      ? this.state.filterState.deptHead
                       : ""
                   }
-                  onChange={this.handleChange(onChange, "DeptHead")}
+                  onChange={this.handleChange(onChange, "deptHead")}
                 />
               )
             }

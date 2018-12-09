@@ -13,14 +13,12 @@ class Employee extends React.Component {
       dep_data: {},
       isLoading: false,
       filterState: {},
-      page: -1
-
+      pages: -1
     };
   }
 
 
   handleChange = (onChange, identifier) => {
-    //console.log("in handlechange");
     return event => {
       this.setState({
         filterState: {
@@ -114,7 +112,7 @@ class Employee extends React.Component {
   }, 500);
 
   render() {
-    const { emp_data, isLoading } = this.state;
+    const { emp_data, isLoading, pages } = this.state;
     const content = (
       <div>
         <ReactTable
@@ -312,29 +310,7 @@ class Employee extends React.Component {
           }
           }
 
-          if (dep.empname) {
-              return (
-                <div className="Posts">
-          <header>
-            <ul>
-              <li> Dep ID: {rows.original.Dep_head.deptid} </li>
-              <li> Dep Name: {rows.original.Dep_head.deptname} </li>
-              <li> Dep Head: {dep.empname} </li>
-              <li> City: {dep.city} </li>
-              <li> Country: {dep.country} </li>
-              <li> Designation: {dep.designation} </li>
-              <li> DOJ: {dep.doj} </li> <li> Grade: {dep.grade} </li>
-              <li> Salary: {dep.salary} </li>
-              <li> Skill: {dep.skill} </li>
-            </ul>
-          </header>
-        </div>
-        );
-            } else {
-              return <div className="Posts"> Loading... </div>;
-      }
-    }}
-  />
+        />
       </div>
     );
 
