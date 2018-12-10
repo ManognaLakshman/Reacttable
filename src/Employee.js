@@ -87,8 +87,8 @@ class Employee extends React.Component {
       size: state.pageSize,
       sort: state.sorted["0"]
         ? state.sorted["0"].id +
-          "," +
-          (state.sorted["0"].desc === false ? "desc" : "asc")
+        "," +
+        (state.sorted["0"].desc === false ? "desc" : "asc")
         : "id",
       search
     };
@@ -214,10 +214,26 @@ class Employee extends React.Component {
                   }}
                 >
                   <option value="all"> Show all </option>
-                  <option value="Specialist">Specialist</option>
+                  <option value="dev">dev</option>
                   <option value="Tester"> Tester </option>
-                  <option value="dev"> dev </option>
+                  <option value="Specialist"> Specialist </option>
                 </select>
+              )
+            },
+            {
+              Header: "DeptName",
+              accessor: "deptname",
+              Filter: ({ filter, onChange }) => (
+                <input
+                  type="text"
+                  size="8"
+                  onChange={this.handleChange(onChange, "deptname")}
+                  value={
+                    this.state.filterState.deptname
+                      ? this.state.filterState.deptname
+                      : ""
+                  }
+                />
               )
             },
             {
