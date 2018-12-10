@@ -112,7 +112,7 @@ class Employee extends React.Component {
       country: result.country,
       doj: result.doj,
       desg: result.desg,
-      DeptName: result.deptid.deptname,
+      deptname: result.deptid.deptname,
       Dep_head: result.deptid
     }));
 
@@ -231,6 +231,22 @@ class Employee extends React.Component {
                   value={
                     this.state.filterState.grade
                       ? this.state.filterState.grade
+                      : ""
+                  }
+                />
+              )
+            },
+            {
+              Header: "Department",
+              accessor: "deptname",
+              Filter: ({ filter, onChange }) => (
+                <input
+                  type="text"
+                  size="8"
+                  onChange={this.handleChange(onChange, "deptname")}
+                  value={
+                    this.state.filterState.deptname
+                      ? this.state.filterState.deptname
                       : ""
                   }
                 />
