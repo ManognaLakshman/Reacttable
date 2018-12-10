@@ -28,7 +28,7 @@ class Employee extends React.Component {
         this.setState({
           filterState: {
             ...this.state.filterState,
-            [identifier]: moment(event._d).format('YYYY-MM-DD')
+            [identifier]: moment(event._d).format('YYYY-MM-DD') + "T00:00:00"
           }
         });
       }
@@ -78,7 +78,7 @@ class Employee extends React.Component {
         ? state.sorted["0"].id +
         "," +
         (state.sorted["0"].desc === false ? "desc" : "asc")
-        : "empid"
+        : "id"
     };
 
     const filterKeys = Object.keys(this.state.filterState);
@@ -98,21 +98,21 @@ class Employee extends React.Component {
     });
 
     const json = await axios.get(
-      "https://spring-employee.herokuapp.com/employees" + url,
+      "https://genericspringrest.herokuapp.com/employee" + url,
       { params }
     );
 
     const newData = json.data.content.map(result => ({
-      empid: result.empid,
-      empname: result.empname,
+      id: result.id,
+      name: result.name,
       skill: result.skill,
       salary: result.salary,
       grade: result.grade,
       city: result.city,
       country: result.country,
       doj: result.doj,
-      designation: result.designation,
-      DeptName: result.deptid.deptname,
+      desg: result.desg,
+      deptname: result.deptid.deptname,
       Dep_head: result.deptid
     }));
 
@@ -120,7 +120,7 @@ class Employee extends React.Component {
       ...this.state,
       emp_data: newData,
       isLoading: false,
-      pages: json.data.page.totalPages
+      pages: json.data.totalPages
     });
   }, 500);
 
@@ -143,15 +143,15 @@ class Employee extends React.Component {
           columns={[
             {
               Header: "ID",
-              accessor: "empid",
+              accessor: "id",
               Filter: ({ filter, onChange }) => (
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "empid")}
+                  onChange={this.handleChange(onChange, "id")}
                   value={
-                    this.state.filterState.empid
-                      ? this.state.filterState.empid
+                    this.state.filterState.id
+                      ? this.state.filterState.id
                       : ""
                   }
                 />
@@ -159,15 +159,15 @@ class Employee extends React.Component {
             },
             {
               Header: "Name",
-              accessor: "empname",
+              accessor: "name",
               Filter: ({ filter, onChange }) => (
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "empname")}
+                  onChange={this.handleChange(onChange, "name")}
                   value={
-                    this.state.filterState.empname
-                      ? this.state.filterState.empname
+                    this.state.filterState.name
+                      ? this.state.filterState.name
                       : ""
                   }
                 />
@@ -205,23 +205,37 @@ class Employee extends React.Component {
             },
             {
               Header: "Designation",
-              accessor: "designation",
+              accessor: "desg",
               minWidth: 110,
               Filter: ({ filter, onChange }) => (
                 <select
-                  onChange={this.handleChange(onChange, "designation")}
-                  value={this.getFilterValueFromState("designation", "all")}
+                  onChange={this.handleChange(onChange, "desg")}
+                  value={this.getFilterValueFromState("desg", "all")}
                   style={{
                     width: "100%"
                   }}
                 >
                   <option value="all"> Show all </option>
-                  <option value="protector of Asgard">
-                    protector of Asgard
-                  </option>
-                  <option value="Sr.manager"> Sr.manager </option>
-                  <option value="developer"> developer </option>
+                  <option value="dev">dev</option>
+                  <option value="Tester"> Tester </option>
+                  <option value="Specialist"> Specialist </option>
                 </select>
+              )
+            },
+            {
+              Header: "DeptName",
+              accessor: "deptname",
+              Filter: ({ filter, onChange }) => (
+                <input
+                  type="text"
+                  size="8"
+                  onChange={this.handleChange(onChange, "deptname")}
+                  value={
+                    this.state.filterState.deptname
+                      ? this.state.filterState.deptname
+                      : ""
+                  }
+                />
               )
             },
             {

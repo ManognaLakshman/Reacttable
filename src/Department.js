@@ -26,12 +26,12 @@ class Department extends React.Component {
         ? state.sorted["0"].id +
         "," +
         (state.sorted["0"].desc === false ? "desc" : "asc")
-        : "Deptid"
+        : "deptid"
     };
 
     const filterKeys = Object.keys(this.state.filterState);
     if (filterKeys.length !== 0) {
-      url = "/search/byadvsearch?advsearch=( ";
+      url = "/search";
       url += filterKeys
         .map(key => {
           return this.state.filterState[key]
@@ -46,14 +46,14 @@ class Department extends React.Component {
     });
 
     const json = await axios.get(
-      "https://spring-employee.herokuapp.com/departments" + url,
+      "https://genericspringrest.herokuapp.com/department" + url,
       { params }
     );
 
     const newData = json.data.content.map(result => ({
       deptid: result.deptid,
       deptname: result.deptname,
-      deptHead: result.depthead.empname
+      //depthead: result.depthead.empname
 
     }));
 
@@ -143,21 +143,21 @@ class Department extends React.Component {
                 />
               )
             },
-            {
-              Header: "DeptHead",
-              accessor: "deptHead",
-              Filter: ({ filter, onChange }) => (
-                <input
-                  type="text"
-                  value={
-                    this.state.filterState.deptHead
-                      ? this.state.filterState.deptHead
-                      : ""
-                  }
-                  onChange={this.handleChange(onChange, "deptHead")}
-                />
-              )
-            }
+            // {
+            //   Header: "DeptHead",
+            //   accessor: "depthead",
+            //   Filter: ({ filter, onChange }) => (
+            //     <input
+            //       type="text"
+            //       value={
+            //         this.state.filterState.deptHead
+            //           ? this.state.filterState.deptHead
+            //           : ""
+            //       }
+            //       onChange={this.handleChange(onChange, "deptHead")}
+            //     />
+            //   )
+            // }
           ]}
           defaultSorted={[
             {
