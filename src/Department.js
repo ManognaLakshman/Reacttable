@@ -14,7 +14,6 @@ class Department extends React.Component {
       filterState: {},
       pages: -1
     };
-
   }
 
   fetchGridData = debounce(async (state, instance) => {
@@ -61,7 +60,7 @@ class Department extends React.Component {
       ...this.state,
       dep_data: newData,
       isLoading: false,
-      pages: json.data.page.totalPages
+      pages: json.data.totalPages
     });
   }, 500);
 
@@ -77,7 +76,6 @@ class Department extends React.Component {
     };
   };
 
-
   getFilterValueFromState = (identifier, defaultValue = "") => {
     const filterState = this.state.filterState;
     if (!filterState) {
@@ -91,7 +89,6 @@ class Department extends React.Component {
     }
     return defaultValue;
   };
-
 
   render() {
     const { dep_data, isLoading, pages } = this.state;
@@ -122,7 +119,6 @@ class Department extends React.Component {
                       ? this.state.filterState.deptid
                       : ""
                   }
-
                 />
               )
             },
@@ -139,25 +135,24 @@ class Department extends React.Component {
                       ? this.state.filterState.deptname
                       : ""
                   }
-
                 />
               )
             },
-            // {
-            //   Header: "DeptHead",
-            //   accessor: "depthead",
-            //   Filter: ({ filter, onChange }) => (
-            //     <input
-            //       type="text"
-            //       value={
-            //         this.state.filterState.deptHead
-            //           ? this.state.filterState.deptHead
-            //           : ""
-            //       }
-            //       onChange={this.handleChange(onChange, "deptHead")}
-            //     />
-            //   )
-            // }
+            {
+              Header: "DeptHead",
+              accessor: "depthead",
+              Filter: ({ filter, onChange }) => (
+                <input
+                  type="text"
+                  value={
+                    this.state.filterState.depthead
+                      ? this.state.filterState.depthead
+                      : ""
+                  }
+                  onChange={this.handleChange(onChange, "depthead")}
+                />
+              )
+            }
           ]}
           defaultSorted={[
             {

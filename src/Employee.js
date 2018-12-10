@@ -8,7 +8,6 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import moment from "moment";
 
-
 class Employee extends React.Component {
   constructor(props) {
     super(props);
@@ -21,18 +20,16 @@ class Employee extends React.Component {
     };
   }
 
-
   handleChange = (onChange, identifier) => {
     return event => {
       if (identifier === "doj") {
         this.setState({
           filterState: {
             ...this.state.filterState,
-            [identifier]: moment(event._d).format('YYYY-MM-DD') + "T00:00:00"
+            [identifier]: moment(event._d).format("YYYY-MM-DD")
           }
         });
-      }
-      else {
+      } else {
         this.setState({
           filterState: {
             ...this.state.filterState,
@@ -70,7 +67,21 @@ class Employee extends React.Component {
   };
 
   fetchGridData = debounce(async (state, instance) => {
-    let url = "";
+    let search = null;
+
+    const filterKeys = Object.keys(this.state.filterState);
+    if (filterKeys.length !== 0) {
+      search = "( ";
+      search += filterKeys
+        .map(key => {
+          return this.state.filterState[key]
+            ? key + ":" + this.state.filterState[key]
+            : "";
+        })
+        .join(" and ");
+      search += " )";
+    }
+
     const params = {
       page: state.page,
       size: state.pageSize,
@@ -78,27 +89,16 @@ class Employee extends React.Component {
         ? state.sorted["0"].id +
         "," +
         (state.sorted["0"].desc === false ? "desc" : "asc")
-        : "id"
+        : "id",
+      search
     };
 
-    const filterKeys = Object.keys(this.state.filterState);
-    if (filterKeys.length !== 0) {
-      url = "/search/byadvsearch?advsearch=( ";
-      url += filterKeys
-        .map(key => {
-          return this.state.filterState[key]
-            ? key + ":" + this.state.filterState[key]
-            : "";
-        })
-        .join(" and ");
-      url += " )";
-    }
     this.setState({
       isLoading: true
     });
 
     const json = await axios.get(
-      "https://genericspringrest.herokuapp.com/employee" + url,
+      "https://genericspringrest.herokuapp.com/employee",
       { params }
     );
 
@@ -150,9 +150,7 @@ class Employee extends React.Component {
                   size="8"
                   onChange={this.handleChange(onChange, "id")}
                   value={
-                    this.state.filterState.id
-                      ? this.state.filterState.id
-                      : ""
+                    this.state.filterState.id ? this.state.filterState.id : ""
                   }
                 />
               )
@@ -196,9 +194,9 @@ class Employee extends React.Component {
               Filter: ({ filter, onChange }) => (
                 <DatePicker
                   placeholderText="Select a date"
-                  value={this.state.filterState.doj
-                    ? this.state.filterState.doj
-                    : ""}
+                  value={
+                    this.state.filterState.doj ? this.state.filterState.doj : ""
+                  }
                   onChange={this.handleChange(onChange, "doj")}
                 />
               )
@@ -312,18 +310,14 @@ class Employee extends React.Component {
               }
             };
           }}
-
-          getTheadFilterThProps={
-            () => {
-              return {
-                style: {
-                  position: "inherit",
-                  overflow: "inherit"
-                }
+          getTheadFilterThProps={() => {
+            return {
+              style: {
+                position: "inherit",
+                overflow: "inherit"
               }
-            }
-          }
-
+            };
+          }}
           SubComponent={rows => {
             const dep = rows.original.Dep_head.depthead;
             return (
@@ -332,7 +326,7 @@ class Employee extends React.Component {
                   <ul>
                     <li>Dep ID : {rows.original.Dep_head.deptid}</li>
                     <li>Dep Name : {rows.original.Dep_head.deptname}</li>
-                    <li>Dep Head : {dep.empname}</li>
+                    <li>Dep Head : {dep.name}</li>
                     <li>City : {dep.city}</li>
                     <li>Country : {dep.country}</li>
                     <li>Designation : {dep.designation}</li>
@@ -344,9 +338,7 @@ class Employee extends React.Component {
                 </header>
               </div>
             );
-          }
-          }
-
+          }}
         />
       </div>
     );
