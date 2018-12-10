@@ -14,7 +14,6 @@ class Department extends React.Component {
       filterState: {},
       pages: -1
     };
-
   }
 
   fetchGridData = debounce(async (state, instance) => {
@@ -24,8 +23,8 @@ class Department extends React.Component {
       size: state.pageSize,
       sort: state.sorted["0"]
         ? state.sorted["0"].id +
-        "," +
-        (state.sorted["0"].desc === false ? "desc" : "asc")
+          "," +
+          (state.sorted["0"].desc === false ? "desc" : "asc")
         : "Deptid"
     };
 
@@ -46,15 +45,14 @@ class Department extends React.Component {
     });
 
     const json = await axios.get(
-      "https://spring-employee.herokuapp.com/departments" + url,
+      "https://genericspringrest.herokuapp.com/department" + url,
       { params }
     );
 
     const newData = json.data.content.map(result => ({
       deptid: result.deptid,
       deptname: result.deptname,
-      deptHead: result.depthead.empname
-
+      depthead: result.depthead.empname
     }));
 
     this.setState({
@@ -77,7 +75,6 @@ class Department extends React.Component {
     };
   };
 
-
   getFilterValueFromState = (identifier, defaultValue = "") => {
     const filterState = this.state.filterState;
     if (!filterState) {
@@ -91,7 +88,6 @@ class Department extends React.Component {
     }
     return defaultValue;
   };
-
 
   render() {
     const { dep_data, isLoading, pages } = this.state;
@@ -122,7 +118,6 @@ class Department extends React.Component {
                       ? this.state.filterState.deptid
                       : ""
                   }
-
                 />
               )
             },
@@ -139,22 +134,21 @@ class Department extends React.Component {
                       ? this.state.filterState.deptname
                       : ""
                   }
-
                 />
               )
             },
             {
               Header: "DeptHead",
-              accessor: "deptHead",
+              accessor: "depthead",
               Filter: ({ filter, onChange }) => (
                 <input
                   type="text"
                   value={
-                    this.state.filterState.deptHead
-                      ? this.state.filterState.deptHead
+                    this.state.filterState.depthead
+                      ? this.state.filterState.depthead
                       : ""
                   }
-                  onChange={this.handleChange(onChange, "deptHead")}
+                  onChange={this.handleChange(onChange, "depthead")}
                 />
               )
             }

@@ -8,7 +8,6 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import moment from "moment";
 
-
 class Employee extends React.Component {
   constructor(props) {
     super(props);
@@ -21,18 +20,16 @@ class Employee extends React.Component {
     };
   }
 
-
   handleChange = (onChange, identifier) => {
     return event => {
       if (identifier === "doj") {
         this.setState({
           filterState: {
             ...this.state.filterState,
-            [identifier]: moment(event._d).format('YYYY-MM-DD')
+            [identifier]: moment(event._d).format("YYYY-MM-DD")
           }
         });
-      }
-      else {
+      } else {
         this.setState({
           filterState: {
             ...this.state.filterState,
@@ -70,48 +67,51 @@ class Employee extends React.Component {
   };
 
   fetchGridData = debounce(async (state, instance) => {
-    let url = "";
-    const params = {
-      page: state.page,
-      size: state.pageSize,
-      sort: state.sorted["0"]
-        ? state.sorted["0"].id +
-        "," +
-        (state.sorted["0"].desc === false ? "desc" : "asc")
-        : "empid"
-    };
+    let search = null;
 
     const filterKeys = Object.keys(this.state.filterState);
     if (filterKeys.length !== 0) {
-      url = "/search/byadvsearch?advsearch=( ";
-      url += filterKeys
+      search = "( ";
+      search += filterKeys
         .map(key => {
           return this.state.filterState[key]
             ? key + ":" + this.state.filterState[key]
             : "";
         })
         .join(" and ");
-      url += " )";
+      search += " )";
     }
+
+    const params = {
+      page: state.page,
+      size: state.pageSize,
+      sort: state.sorted["0"]
+        ? state.sorted["0"].id +
+          "," +
+          (state.sorted["0"].desc === false ? "desc" : "asc")
+        : "id",
+      search
+    };
+
     this.setState({
       isLoading: true
     });
 
     const json = await axios.get(
-      "https://spring-employee.herokuapp.com/employees" + url,
+      "https://genericspringrest.herokuapp.com/employee",
       { params }
     );
 
     const newData = json.data.content.map(result => ({
-      empid: result.empid,
-      empname: result.empname,
+      id: result.id,
+      name: result.name,
       skill: result.skill,
       salary: result.salary,
       grade: result.grade,
       city: result.city,
       country: result.country,
       doj: result.doj,
-      designation: result.designation,
+      desg: result.desg,
       DeptName: result.deptid.deptname,
       Dep_head: result.deptid
     }));
@@ -120,7 +120,7 @@ class Employee extends React.Component {
       ...this.state,
       emp_data: newData,
       isLoading: false,
-      pages: json.data.page.totalPages
+      pages: json.data.totalPages
     });
   }, 500);
 
@@ -143,31 +143,29 @@ class Employee extends React.Component {
           columns={[
             {
               Header: "ID",
-              accessor: "empid",
+              accessor: "id",
               Filter: ({ filter, onChange }) => (
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "empid")}
+                  onChange={this.handleChange(onChange, "id")}
                   value={
-                    this.state.filterState.empid
-                      ? this.state.filterState.empid
-                      : ""
+                    this.state.filterState.id ? this.state.filterState.id : ""
                   }
                 />
               )
             },
             {
               Header: "Name",
-              accessor: "empname",
+              accessor: "name",
               Filter: ({ filter, onChange }) => (
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "empname")}
+                  onChange={this.handleChange(onChange, "name")}
                   value={
-                    this.state.filterState.empname
-                      ? this.state.filterState.empname
+                    this.state.filterState.name
+                      ? this.state.filterState.name
                       : ""
                   }
                 />
@@ -196,31 +194,29 @@ class Employee extends React.Component {
               Filter: ({ filter, onChange }) => (
                 <DatePicker
                   placeholderText="Select a date"
-                  value={this.state.filterState.doj
-                    ? this.state.filterState.doj
-                    : ""}
+                  value={
+                    this.state.filterState.doj ? this.state.filterState.doj : ""
+                  }
                   onChange={this.handleChange(onChange, "doj")}
                 />
               )
             },
             {
               Header: "Designation",
-              accessor: "designation",
+              accessor: "desg",
               minWidth: 110,
               Filter: ({ filter, onChange }) => (
                 <select
-                  onChange={this.handleChange(onChange, "designation")}
-                  value={this.getFilterValueFromState("designation", "all")}
+                  onChange={this.handleChange(onChange, "desg")}
+                  value={this.getFilterValueFromState("desg", "all")}
                   style={{
                     width: "100%"
                   }}
                 >
                   <option value="all"> Show all </option>
-                  <option value="protector of Asgard">
-                    protector of Asgard
-                  </option>
-                  <option value="Sr.manager"> Sr.manager </option>
-                  <option value="developer"> developer </option>
+                  <option value="Specialist">Specialist</option>
+                  <option value="Tester"> Tester </option>
+                  <option value="dev"> dev </option>
                 </select>
               )
             },
@@ -298,18 +294,14 @@ class Employee extends React.Component {
               }
             };
           }}
-
-          getTheadFilterThProps={
-            () => {
-              return {
-                style: {
-                  position: "inherit",
-                  overflow: "inherit"
-                }
+          getTheadFilterThProps={() => {
+            return {
+              style: {
+                position: "inherit",
+                overflow: "inherit"
               }
-            }
-          }
-
+            };
+          }}
           SubComponent={rows => {
             const dep = rows.original.Dep_head.depthead;
             return (
@@ -318,7 +310,7 @@ class Employee extends React.Component {
                   <ul>
                     <li>Dep ID : {rows.original.Dep_head.deptid}</li>
                     <li>Dep Name : {rows.original.Dep_head.deptname}</li>
-                    <li>Dep Head : {dep.empname}</li>
+                    <li>Dep Head : {dep.name}</li>
                     <li>City : {dep.city}</li>
                     <li>Country : {dep.country}</li>
                     <li>Designation : {dep.designation}</li>
@@ -330,9 +322,7 @@ class Employee extends React.Component {
                 </header>
               </div>
             );
-          }
-          }
-
+          }}
         />
       </div>
     );
