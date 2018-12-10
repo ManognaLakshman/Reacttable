@@ -4,6 +4,10 @@ import ReactTable from "react-table";
 import "react-table/react-table.css";
 import axios from "axios";
 import debounce from "lodash/debounce";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import moment from "moment";
+
 
 class Employee extends React.Component {
   constructor(props) {
@@ -20,13 +24,22 @@ class Employee extends React.Component {
 
   handleChange = (onChange, identifier) => {
     return event => {
-      this.setState({
-        filterState: {
-          ...this.state.filterState,
-          [identifier]: event.target.value
-        }
-      });
-
+      if (identifier === "doj") {
+        this.setState({
+          filterState: {
+            ...this.state.filterState,
+            [identifier]: moment(event._d).format('YYYY-MM-DD')
+          }
+        });
+      }
+      else {
+        this.setState({
+          filterState: {
+            ...this.state.filterState,
+            [identifier]: event.target.value
+          }
+        });
+      }
       onChange();
     };
   };
@@ -181,13 +194,12 @@ class Employee extends React.Component {
               Header: "DOJ",
               accessor: "doj",
               Filter: ({ filter, onChange }) => (
-                <input
-                  type="text"
-                  size="8"
+                <DatePicker
+                  placeholderText="Select a date"
+                  value={this.state.filterState.doj
+                    ? this.state.filterState.doj
+                    : ""}
                   onChange={this.handleChange(onChange, "doj")}
-                  value={
-                    this.state.filterState.DOJ ? this.state.filterState.DOJ : ""
-                  }
                 />
               )
             },
@@ -286,6 +298,17 @@ class Employee extends React.Component {
               }
             };
           }}
+
+          getTheadFilterThProps={
+            () => {
+              return {
+                style: {
+                  position: "inherit",
+                  overflow: "inherit"
+                }
+              }
+            }
+          }
 
           SubComponent={rows => {
             const dep = rows.original.Dep_head.depthead;
