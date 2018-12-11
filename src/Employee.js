@@ -24,18 +24,36 @@ class Employee extends React.Component {
     return event => {
       const identifier = column.id;
       const type = column.type;
-      if (
-        event.target.value === undefined ||
-        event.target.value === null ||
-        event.target.value === ""
-      ) {
-        delete this.state.filterState[identifier];
-        this.setState({
-          ...this.state.filterState
-        });
-        onChange();
-        return;
+      if (type === "date") {
+        if (
+          event._d === undefined ||
+          event._d === null ||
+          event._d === ""
+        ) {
+          delete this.state.filterState[identifier];
+          this.setState({
+            ...this.state.filterState
+          });
+          onChange();
+          return;
+        }
       }
+
+      else {
+        if (
+          event.target.value === undefined ||
+          event.target.value === null ||
+          event.target.value === ""
+        ) {
+          delete this.state.filterState[identifier];
+          this.setState({
+            ...this.state.filterState
+          });
+          onChange();
+          return;
+        }
+      }
+
       if (type === "date") {
         this.setState({
           filterState: {
