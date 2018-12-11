@@ -17,7 +17,23 @@ class Department extends React.Component {
   }
 
   fetchGridData = debounce(async (state, instance) => {
-    let url = "";
+    let search = null;
+    const filterKeys = Object.keys(this.state.filterState);
+    console.log(filterKeys);
+    if (filterKeys.length !== 0) {
+      search = "( ";
+      search += filterKeys
+        .map(key => {
+          return this.state.filterState[key]
+            ? key + ":" + this.state.filterState[key]
+            : "";
+        })
+        .join(" and ");
+      search += " )";
+    }
+    this.setState({
+      isLoading: true
+    });
     const params = {
       page: state.page,
       size: state.pageSize,
@@ -25,34 +41,18 @@ class Department extends React.Component {
         ? state.sorted["0"].id +
         "," +
         (state.sorted["0"].desc === false ? "desc" : "asc")
-        : "deptid"
+        : "deptid",
+      search
     };
-
-    const filterKeys = Object.keys(this.state.filterState);
-    if (filterKeys.length !== 0) {
-      url = "/search";
-      url += filterKeys
-        .map(key => {
-          return this.state.filterState[key]
-            ? key + ":" + this.state.filterState[key]
-            : "";
-        })
-        .join(" and ");
-      url += " )";
-    }
-    this.setState({
-      isLoading: true
-    });
-
     const json = await axios.get(
-      "https://genericspringrest.herokuapp.com/department" + url,
+      "https://genericspringrest.herokuapp.com/department",
       { params }
     );
 
     const newData = json.data.content.map(result => ({
       deptid: result.deptid,
       deptname: result.deptname,
-      //depthead: result.depthead.empname
+      depthead: result.depthead.name
 
     }));
 
