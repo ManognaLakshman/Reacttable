@@ -20,9 +20,23 @@ class Employee extends React.Component {
     };
   }
 
-  handleChange = (onChange, identifier) => {
+  handleChange = (onChange, column) => {
     return event => {
-      if (identifier === "doj") {
+      const identifier = column.id;
+      const type = column.type;
+      if (
+        event.target.value === undefined ||
+        event.target.value === null ||
+        event.target.value === ""
+      ) {
+        delete this.state.filterState[identifier];
+        this.setState({
+          ...this.state.filterState
+        });
+        onChange();
+        return;
+      }
+      if (type === "date") {
         this.setState({
           filterState: {
             ...this.state.filterState,
@@ -30,12 +44,14 @@ class Employee extends React.Component {
           }
         });
       } else {
+        const filterState = {
+          ...this.state.filterState,
+          [identifier]: event.target.value
+        };
         this.setState({
-          filterState: {
-            ...this.state.filterState,
-            [identifier]: event.target.value
-          }
+          filterState
         });
+        console.log(filterState);
       }
       onChange();
     };
@@ -68,14 +84,25 @@ class Employee extends React.Component {
 
   fetchGridData = debounce(async (state, instance) => {
     let search = null;
-
+    debugger;
+    const colTypeMapping = state.allDecoratedColumns.reduce(
+      (accumulator, currentValue) => {
+        return { ...accumulator, [currentValue.id]: currentValue.type };
+      },
+      {}
+    );
     const filterKeys = Object.keys(this.state.filterState);
     if (filterKeys.length !== 0) {
+      debugger;
       search = "( ";
       search += filterKeys
         .map(key => {
+          let suffix = "";
+          if (colTypeMapping[key] && colTypeMapping[key] === "text") {
+            suffix = "*";
+          }
           return this.state.filterState[key]
-            ? key + ":" + this.state.filterState[key]
+            ? key + ":" + this.state.filterState[key] + suffix
             : "";
         })
         .join(" and ");
@@ -87,8 +114,8 @@ class Employee extends React.Component {
       size: state.pageSize,
       sort: state.sorted["0"]
         ? state.sorted["0"].id +
-        "," +
-        (state.sorted["0"].desc === false ? "desc" : "asc")
+          "," +
+          (state.sorted["0"].desc === false ? "desc" : "asc")
         : "id",
       search
     };
@@ -112,8 +139,8 @@ class Employee extends React.Component {
       country: result.country,
       doj: result.doj,
       desg: result.desg,
-      deptname: result.deptid.deptname,
-      Dep_head: result.deptid
+      deptname: result.dept ? result.dept.deptname : "",
+      Dep_head: result.dept
     }));
 
     this.setState({
@@ -144,11 +171,12 @@ class Employee extends React.Component {
             {
               Header: "ID",
               accessor: "id",
-              Filter: ({ filter, onChange }) => (
+              type: "number",
+              Filter: ({ column, onChange }) => (
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "id")}
+                  onChange={this.handleChange(onChange, column)}
                   value={
                     this.state.filterState.id ? this.state.filterState.id : ""
                   }
@@ -158,11 +186,12 @@ class Employee extends React.Component {
             {
               Header: "Name",
               accessor: "name",
-              Filter: ({ filter, onChange }) => (
+              type: "text",
+              Filter: ({ column, onChange }) => (
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "name")}
+                  onChange={this.handleChange(onChange, column)}
                   value={
                     this.state.filterState.name
                       ? this.state.filterState.name
@@ -175,11 +204,12 @@ class Employee extends React.Component {
             {
               Header: "Skill",
               accessor: "skill",
-              Filter: ({ filter, onChange }) => (
+              type: "text",
+              Filter: ({ column, onChange }) => (
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "skill")}
+                  onChange={this.handleChange(onChange, column)}
                   value={
                     this.state.filterState.skill
                       ? this.state.filterState.skill
@@ -191,23 +221,27 @@ class Employee extends React.Component {
             {
               Header: "DOJ",
               accessor: "doj",
-              Filter: ({ filter, onChange }) => (
+              type: "date",
+              Filter: ({ column, onChange }) => (
                 <DatePicker
                   placeholderText="Select a date"
                   value={
                     this.state.filterState.doj ? this.state.filterState.doj : ""
                   }
-                  onChange={this.handleChange(onChange, "doj")}
+                  onChange={this.handleChange(onChange, column)}
                 />
               )
             },
             {
               Header: "Designation",
               accessor: "desg",
+              type: "text",
               minWidth: 110,
-              Filter: ({ filter, onChange }) => (
+              Filter: ({ column, onChange }) => (
                 <select
-                  onChange={this.handleChange(onChange, "desg")}
+                  onChange={() => {
+                    return this.handleChange(onChange, column);
+                  }}
                   value={this.getFilterValueFromState("desg", "all")}
                   style={{
                     width: "100%"
@@ -221,29 +255,14 @@ class Employee extends React.Component {
               )
             },
             {
-              Header: "DeptName",
-              accessor: "deptname",
-              Filter: ({ filter, onChange }) => (
-                <input
-                  type="text"
-                  size="8"
-                  onChange={this.handleChange(onChange, "deptname")}
-                  value={
-                    this.state.filterState.deptname
-                      ? this.state.filterState.deptname
-                      : ""
-                  }
-                />
-              )
-            },
-            {
               Header: "Grade",
               accessor: "grade",
-              Filter: ({ filter, onChange }) => (
+              type: "number",
+              Filter: ({ column, onChange }) => (
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "grade")}
+                  onChange={this.handleChange(onChange, column)}
                   value={
                     this.state.filterState.grade
                       ? this.state.filterState.grade
@@ -253,16 +272,18 @@ class Employee extends React.Component {
               )
             },
             {
+              id: "dept.deptname",
               Header: "Department",
               accessor: "deptname",
-              Filter: ({ filter, onChange }) => (
+              type: "text",
+              Filter: ({ column, onChange }) => (
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "deptname")}
+                  onChange={this.handleChange(onChange, column)}
                   value={
-                    this.state.filterState.deptname
-                      ? this.state.filterState.deptname
+                    this.state.filterState["dept.deptname"]
+                      ? this.state.filterState["dept.deptname"]
                       : ""
                   }
                 />
@@ -271,11 +292,12 @@ class Employee extends React.Component {
             {
               Header: "Salary",
               accessor: "salary",
-              Filter: ({ filter, onChange }) => (
+              type: "number",
+              Filter: ({ column, onChange }) => (
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "salary")}
+                  onChange={this.handleChange(onChange, column)}
                   value={
                     this.state.filterState.salary
                       ? this.state.filterState.salary
@@ -287,11 +309,12 @@ class Employee extends React.Component {
             {
               Header: "City",
               accessor: "city",
-              Filter: ({ filter, onChange }) => (
+              type: "text",
+              Filter: ({ column, onChange }) => (
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "city")}
+                  onChange={this.handleChange(onChange, column)}
                   value={
                     this.state.filterState.city
                       ? this.state.filterState.city
@@ -303,11 +326,12 @@ class Employee extends React.Component {
             {
               Header: "Country",
               accessor: "country",
-              Filter: ({ filter, onChange }) => (
+              type: "text",
+              Filter: ({ column, onChange }) => (
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "country")}
+                  onChange={this.handleChange(onChange, column)}
                   value={
                     this.state.filterState.country
                       ? this.state.filterState.country
