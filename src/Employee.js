@@ -7,6 +7,7 @@ import debounce from "lodash/debounce";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import moment from "moment";
+import Pagination from "./Pagination";
 
 class Employee extends React.Component {
   constructor(props) {
@@ -176,9 +177,12 @@ class Employee extends React.Component {
           freezeWhenExpanded={true}
           filterable
           pages={pages}
+          Pagination={true}
           showPagination={true}
-          showPaginationTop={true}
           showPaginationBottom={true}
+          showPaginationTop={true}
+          showPageSizeOptions={true}
+          PaginationComponent={Pagination}
           manual
           minRows={0}
           loading={isLoading}
@@ -265,7 +269,7 @@ class Employee extends React.Component {
                   <option value="dev">dev</option>
                   <option value="Tester"> Tester </option>
                   <option value="Specialist"> Specialist </option>
-                  <option value="UI%20dev">UI dev</option>
+                  <option value="UI dev">UI dev</option>
                 </select>
               )
             },
@@ -356,7 +360,7 @@ class Employee extends React.Component {
               )
             }
           ]}
-          defaultPageSize={10}
+          defaultPageSize={5}
           className="-striped -highlight"
           getTdProps={() => {
             return {

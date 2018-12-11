@@ -4,6 +4,7 @@ import "react-table/react-table.css";
 import axios from "axios";
 import "./index.css";
 import debounce from "lodash/debounce";
+import Pagination from "./Pagination";
 
 class Department extends React.Component {
   constructor(props) {
@@ -130,6 +131,7 @@ class Department extends React.Component {
           showPagination={true}
           showPaginationTop={true}
           showPaginationBottom={true}
+          PaginationComponent={Pagination}
           manual
           minRows={0}
           loading={isLoading}
