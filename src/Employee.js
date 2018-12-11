@@ -20,9 +20,23 @@ class Employee extends React.Component {
     };
   }
 
-  handleChange = (onChange, identifier) => {
+  handleChange = (onChange, column) => {
     return event => {
-      if (identifier === "doj") {
+      const identifier = column.id;
+      const type = column.type;
+      if (
+        event.target.value === undefined ||
+        event.target.value === null ||
+        event.target.value === ""
+      ) {
+        delete this.state.filterState[identifier];
+        this.setState({
+          ...this.state.filterState
+        });
+        onChange();
+        return;
+      }
+      if (type === "date") {
         this.setState({
           filterState: {
             ...this.state.filterState,
@@ -30,12 +44,14 @@ class Employee extends React.Component {
           }
         });
       } else {
+        const filterState = {
+          ...this.state.filterState,
+          [identifier]: event.target.value
+        };
         this.setState({
-          filterState: {
-            ...this.state.filterState,
-            [identifier]: event.target.value
-          }
+          filterState
         });
+        console.log(filterState);
       }
       onChange();
     };
@@ -58,7 +74,6 @@ class Employee extends React.Component {
   fetchDepartmentDetails = async deptId => {
     if (!this.state.dep_data[deptId]) {
       const json = await axios.get(deptId);
-
       const deptData = json.data;
       this.setState({
         dep_data: { ...this.state.dep_data, [deptId]: deptData }
@@ -68,14 +83,24 @@ class Employee extends React.Component {
 
   fetchGridData = debounce(async (state, instance) => {
     let search = null;
-
+    const colTypeMapping = state.allDecoratedColumns.reduce(
+      (accumulator, currentValue) => {
+        return { ...accumulator, [currentValue.id]: currentValue.type };
+      },
+      {}
+    );
     const filterKeys = Object.keys(this.state.filterState);
     if (filterKeys.length !== 0) {
+
       search = "( ";
       search += filterKeys
         .map(key => {
+          let suffix = "";
+          if (colTypeMapping[key] && colTypeMapping[key] === "text") {
+            suffix = "*";
+          }
           return this.state.filterState[key]
-            ? key + ":" + this.state.filterState[key]
+            ? key + ":" + this.state.filterState[key] + suffix
             : "";
         })
         .join(" and ");
@@ -112,8 +137,8 @@ class Employee extends React.Component {
       country: result.country,
       doj: result.doj,
       desg: result.desg,
-      deptname: result.deptid.deptname,
-      Dep_head: result.deptid
+      deptname: result.dept ? result.dept.deptname : "",
+      Dep_head: result.dept
     }));
 
     this.setState({
@@ -144,11 +169,12 @@ class Employee extends React.Component {
             {
               Header: "ID",
               accessor: "id",
-              Filter: ({ filter, onChange }) => (
+              type: "number",
+              Filter: ({ column, onChange }) => (
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "id")}
+                  onChange={this.handleChange(onChange, column)}
                   value={
                     this.state.filterState.id ? this.state.filterState.id : ""
                   }
@@ -158,11 +184,12 @@ class Employee extends React.Component {
             {
               Header: "Name",
               accessor: "name",
-              Filter: ({ filter, onChange }) => (
+              type: "text",
+              Filter: ({ column, onChange }) => (
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "name")}
+                  onChange={this.handleChange(onChange, column)}
                   value={
                     this.state.filterState.name
                       ? this.state.filterState.name
@@ -175,11 +202,12 @@ class Employee extends React.Component {
             {
               Header: "Skill",
               accessor: "skill",
-              Filter: ({ filter, onChange }) => (
+              type: "text",
+              Filter: ({ column, onChange }) => (
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "skill")}
+                  onChange={this.handleChange(onChange, column)}
                   value={
                     this.state.filterState.skill
                       ? this.state.filterState.skill
@@ -191,23 +219,25 @@ class Employee extends React.Component {
             {
               Header: "DOJ",
               accessor: "doj",
-              Filter: ({ filter, onChange }) => (
+              type: "date",
+              Filter: ({ column, onChange }) => (
                 <DatePicker
                   placeholderText="Select a date"
                   value={
                     this.state.filterState.doj ? this.state.filterState.doj : ""
                   }
-                  onChange={this.handleChange(onChange, "doj")}
+                  onChange={this.handleChange(onChange, column)}
                 />
               )
             },
             {
               Header: "Designation",
               accessor: "desg",
+              type: "text",
               minWidth: 110,
-              Filter: ({ filter, onChange }) => (
+              Filter: ({ column, onChange }) => (
                 <select
-                  onChange={this.handleChange(onChange, "desg")}
+                  onChange={this.handleChange(onChange, column)}
                   value={this.getFilterValueFromState("desg", "all")}
                   style={{
                     width: "100%"
@@ -217,33 +247,19 @@ class Employee extends React.Component {
                   <option value="dev">dev</option>
                   <option value="Tester"> Tester </option>
                   <option value="Specialist"> Specialist </option>
+                  <option value="UI%20dev">UI dev</option>
                 </select>
-              )
-            },
-            {
-              Header: "DeptName",
-              accessor: "deptname",
-              Filter: ({ filter, onChange }) => (
-                <input
-                  type="text"
-                  size="8"
-                  onChange={this.handleChange(onChange, "deptname")}
-                  value={
-                    this.state.filterState.deptname
-                      ? this.state.filterState.deptname
-                      : ""
-                  }
-                />
               )
             },
             {
               Header: "Grade",
               accessor: "grade",
-              Filter: ({ filter, onChange }) => (
+              type: "number",
+              Filter: ({ column, onChange }) => (
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "grade")}
+                  onChange={this.handleChange(onChange, column)}
                   value={
                     this.state.filterState.grade
                       ? this.state.filterState.grade
@@ -253,13 +269,32 @@ class Employee extends React.Component {
               )
             },
             {
-              Header: "Salary",
-              accessor: "salary",
-              Filter: ({ filter, onChange }) => (
+              id: "dept.deptname",
+              Header: "Department",
+              accessor: "deptname",
+              type: "text",
+              Filter: ({ column, onChange }) => (
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "salary")}
+                  onChange={this.handleChange(onChange, column)}
+                  value={
+                    this.state.filterState["dept.deptname"]
+                      ? this.state.filterState["dept.deptname"]
+                      : ""
+                  }
+                />
+              )
+            },
+            {
+              Header: "Salary",
+              accessor: "salary",
+              type: "number",
+              Filter: ({ column, onChange }) => (
+                <input
+                  type="text"
+                  size="8"
+                  onChange={this.handleChange(onChange, column)}
                   value={
                     this.state.filterState.salary
                       ? this.state.filterState.salary
@@ -271,11 +306,12 @@ class Employee extends React.Component {
             {
               Header: "City",
               accessor: "city",
-              Filter: ({ filter, onChange }) => (
+              type: "text",
+              Filter: ({ column, onChange }) => (
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "city")}
+                  onChange={this.handleChange(onChange, column)}
                   value={
                     this.state.filterState.city
                       ? this.state.filterState.city
@@ -287,11 +323,12 @@ class Employee extends React.Component {
             {
               Header: "Country",
               accessor: "country",
-              Filter: ({ filter, onChange }) => (
+              type: "text",
+              Filter: ({ column, onChange }) => (
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "country")}
+                  onChange={this.handleChange(onChange, column)}
                   value={
                     this.state.filterState.country
                       ? this.state.filterState.country
@@ -319,21 +356,22 @@ class Employee extends React.Component {
             };
           }}
           SubComponent={rows => {
-            const dep = rows.original.Dep_head.depthead;
+            console.log(rows);
+            const dep = rows.original.Dep_head ? rows.original.Dep_head.depthead : "";
             return (
               <div className="Posts">
                 <header>
                   <ul>
-                    <li>Dep ID : {rows.original.Dep_head.deptid}</li>
-                    <li>Dep Name : {rows.original.Dep_head.deptname}</li>
-                    <li>Dep Head : {dep.name}</li>
-                    <li>City : {dep.city}</li>
-                    <li>Country : {dep.country}</li>
-                    <li>Designation : {dep.designation}</li>
-                    <li>DOJ : {dep.doj}</li>
-                    <li>Grade : {dep.grade}</li>
-                    <li>Salary : {dep.salary}</li>
-                    <li>Skill : {dep.skill}</li>
+                    <li>Dep ID : {rows.original.Dep_head ? rows.original.Dep_head.deptid : ""}</li>
+                    <li>Dep Name : {rows.original.Dep_head ? rows.original.Dep_head.deptname : ""}</li>
+                    <li>Dep Head : {dep ? dep.name : ""}</li>
+                    <li>City : {dep ? dep.city : ""}</li>
+                    <li>Country : {dep ? dep.country : ""}</li>
+                    <li>Designation : {dep ? dep.designation : ""}</li>
+                    <li>DOJ : {dep ? dep.doj : ""}</li>
+                    <li>Grade : {dep ? dep.grade : ""}</li>
+                    <li>Salary : {dep ? dep.salary : ""}</li>
+                    <li>Skill : {dep ? dep.skill : ""}</li>
                   </ul>
                 </header>
               </div>
