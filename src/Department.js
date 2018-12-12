@@ -4,6 +4,7 @@ import "react-table/react-table.css";
 import axios from "axios";
 import "./index.css";
 import debounce from "lodash/debounce";
+import Pagination from "./Pagination";
 
 class Department extends React.Component {
   constructor(props) {
@@ -65,8 +66,8 @@ class Department extends React.Component {
 
     const newData = json.data.content.map(result => ({
       deptid: result.deptid,
-      deptname: result.deptname
-      // depthead: result.depthead
+      deptname: result.deptname,
+      depthead: result.depthead ? result.depthead.name : ""
     }));
 
     this.setState({
@@ -93,7 +94,7 @@ class Department extends React.Component {
   handleChange = (onChange, column) => {
     return event => {
       const identifier = column.id;
-      const type = column.type;
+      //const type = column.type;
       if (
         event.target.value === undefined ||
         event.target.value === null ||
@@ -130,6 +131,7 @@ class Department extends React.Component {
           showPagination={true}
           showPaginationTop={true}
           showPaginationBottom={true}
+          PaginationComponent={Pagination}
           manual
           minRows={0}
           loading={isLoading}

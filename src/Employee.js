@@ -7,6 +7,7 @@ import debounce from "lodash/debounce";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import moment from "moment";
+import Pagination from "./Pagination";
 
 class Employee extends React.Component {
   constructor(props) {
@@ -84,7 +85,7 @@ class Employee extends React.Component {
 
   fetchGridData = debounce(async (state, instance) => {
     let search = null;
-    debugger;
+    //debugger;
     const colTypeMapping = state.allDecoratedColumns.reduce(
       (accumulator, currentValue) => {
         return { ...accumulator, [currentValue.id]: currentValue.type };
@@ -93,7 +94,6 @@ class Employee extends React.Component {
     );
     const filterKeys = Object.keys(this.state.filterState);
     if (filterKeys.length !== 0) {
-      debugger;
       search = "( ";
       search += filterKeys
         .map(key => {
@@ -161,8 +161,11 @@ class Employee extends React.Component {
           filterable
           pages={pages}
           showPagination={true}
+          Pagination={true}
           showPaginationTop={true}
           showPaginationBottom={true}
+          showPageSizeOptions={true}
+          PaginationComponent={Pagination}
           manual
           minRows={0}
           loading={isLoading}
@@ -239,18 +242,17 @@ class Employee extends React.Component {
               minWidth: 110,
               Filter: ({ column, onChange }) => (
                 <select
-                  onChange={() => {
-                    return this.handleChange(onChange, column);
-                  }}
+                  onChange={this.handleChange(onChange, column)}
                   value={this.getFilterValueFromState("desg", "all")}
                   style={{
                     width: "100%"
                   }}
                 >
-                  <option value="all"> Show all </option>
+                  <option value="">Show all</option>
                   <option value="dev">dev</option>
-                  <option value="Tester"> Tester </option>
-                  <option value="Specialist"> Specialist </option>
+                  <option value="Tester">Tester</option>
+                  <option value="Specialist">Specialist</option>
+                  <option value="UI dev">UI dev</option>
                 </select>
               )
             },
@@ -359,21 +361,33 @@ class Employee extends React.Component {
             };
           }}
           SubComponent={rows => {
-            const dep = rows.original.Dep_head.depthead;
+            const dep = rows.original.Dep_head
+              ? rows.original.Dep_head.depthead
+              : "";
             return (
               <div className="Posts">
                 <header>
                   <ul>
-                    <li>Dep ID : {rows.original.Dep_head.deptid}</li>
-                    <li>Dep Name : {rows.original.Dep_head.deptname}</li>
-                    <li>Dep Head : {dep.name}</li>
-                    <li>City : {dep.city}</li>
-                    <li>Country : {dep.country}</li>
-                    <li>Designation : {dep.designation}</li>
-                    <li>DOJ : {dep.doj}</li>
-                    <li>Grade : {dep.grade}</li>
-                    <li>Salary : {dep.salary}</li>
-                    <li>Skill : {dep.skill}</li>
+                    <li>
+                      Dep ID :{" "}
+                      {rows.original.Dep_head
+                        ? rows.original.Dep_head.deptid
+                        : ""}
+                    </li>
+                    <li>
+                      Dep Name :{" "}
+                      {rows.original.Dep_head
+                        ? rows.original.Dep_head.deptname
+                        : ""}
+                    </li>
+                    <li>Dep Head : {dep ? dep.name : ""}</li>
+                    <li>City : {dep ? dep.city : ""}</li>
+                    <li>Country : {dep ? dep.country : ""}</li>
+                    <li>Designation : {dep ? dep.designation : ""}</li>
+                    <li>DOJ : {dep ? dep.doj : ""}</li>
+                    <li>Grade : {dep ? dep.grade : ""}</li>
+                    <li>Salary : {dep ? dep.salary : ""}</li>
+                    <li>Skill : {dep ? dep.skill : ""}</li>
                   </ul>
                 </header>
               </div>
