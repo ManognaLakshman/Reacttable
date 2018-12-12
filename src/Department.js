@@ -4,6 +4,7 @@ import "react-table/react-table.css";
 import axios from "axios";
 import "./index.css";
 import debounce from "lodash/debounce";
+import Pagination from "./Pagination";
 
 class Department extends React.Component {
   constructor(props) {
@@ -18,28 +19,42 @@ class Department extends React.Component {
 
   fetchGridData = debounce(async (state, instance) => {
     let search = null;
+
+    const colTypeMapping = state.allDecoratedColumns.reduce(
+      (accumulator, currentValue) => {
+        return { ...accumulator, [currentValue.id]: currentValue.type };
+      },
+      {}
+    );
     const filterKeys = Object.keys(this.state.filterState);
     if (filterKeys.length !== 0) {
+
       search = "( ";
       search += filterKeys
         .map(key => {
+          let suffix = "";
+          if (colTypeMapping[key] && colTypeMapping[key] === "text") {
+            suffix = "*";
+          }
           return this.state.filterState[key]
-            ? key + ":" + this.state.filterState[key]
+            ? key + ":" + this.state.filterState[key] + suffix
             : "";
         })
         .join(" and ");
       search += " )";
     }
+
     const params = {
       page: state.page,
       size: state.pageSize,
       sort: state.sorted["0"]
         ? state.sorted["0"].id +
-          "," +
-          (state.sorted["0"].desc === false ? "desc" : "asc")
-        : "deptid",
+        "," +
+        (state.sorted["0"].desc === false ? "desc" : "asc")
+        : "id",
       search
     };
+
     this.setState({
       isLoading: true
     });
@@ -51,8 +66,8 @@ class Department extends React.Component {
 
     const newData = json.data.content.map(result => ({
       deptid: result.deptid,
-      deptname: result.deptname
-      //  depthead: result.depthead
+      deptname: result.deptname,
+      depthead: result.depthead ? result.depthead.name : ""
     }));
 
     this.setState({
@@ -62,18 +77,6 @@ class Department extends React.Component {
       pages: json.data.totalPages
     });
   }, 500);
-
-  handleChange = (onChange, identifier) => {
-    return e => {
-      this.setState({
-        filterState: {
-          ...this.state.filterState,
-          [identifier]: e.target.value
-        }
-      });
-      onChange();
-    };
-  };
 
   getFilterValueFromState = (identifier, defaultValue = "") => {
     const filterState = this.state.filterState;
@@ -88,6 +91,34 @@ class Department extends React.Component {
     }
     return defaultValue;
   };
+  handleChange = (onChange, column) => {
+    return event => {
+      const identifier = column.id;
+      //const type = column.type;
+      if (
+        event.target.value === undefined ||
+        event.target.value === null ||
+        event.target.value === ""
+      ) {
+        delete this.state.filterState[identifier];
+        this.setState({
+          ...this.state.filterState
+        });
+        onChange();
+        return;
+      } else {
+        const filterState = {
+          ...this.state.filterState,
+          [identifier]: event.target.value
+        };
+        this.setState({
+          filterState
+        });
+        console.log(filterState);
+      }
+      onChange();
+    };
+  };
 
   render() {
     const { dep_data, isLoading, pages } = this.state;
@@ -100,6 +131,7 @@ class Department extends React.Component {
           showPagination={true}
           showPaginationTop={true}
           showPaginationBottom={true}
+          PaginationComponent={Pagination}
           manual
           minRows={0}
           loading={isLoading}
@@ -108,11 +140,12 @@ class Department extends React.Component {
             {
               Header: "Deptid",
               accessor: "deptid",
-              Filter: ({ filter, onChange }) => (
+              type: "number",
+              Filter: ({ column, onChange }) => (
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "deptid")}
+                  onChange={this.handleChange(onChange, column)}
                   value={
                     this.state.filterState.deptid
                       ? this.state.filterState.deptid
@@ -124,11 +157,12 @@ class Department extends React.Component {
             {
               Header: "Department",
               accessor: "deptname",
-              Filter: ({ filter, onChange }) => (
+              type: "text",
+              Filter: ({ column, onChange }) => (
                 <input
                   type="text"
                   size="8"
-                  onChange={this.handleChange(onChange, "deptname")}
+                  onChange={this.handleChange(onChange, column)}
                   value={
                     this.state.filterState.deptname
                       ? this.state.filterState.deptname
@@ -140,7 +174,8 @@ class Department extends React.Component {
             {
               Header: "DeptHead",
               accessor: "depthead",
-              Filter: ({ filter, onChange }) => (
+              type: "text",
+              Filter: ({ column, onChange }) => (
                 <input
                   type="text"
                   value={
@@ -148,14 +183,14 @@ class Department extends React.Component {
                       ? this.state.filterState.depthead
                       : ""
                   }
-                  onChange={this.handleChange(onChange, "depthead")}
+                  onChange={this.handleChange(onChange, column)}
                 />
               )
             }
           ]}
           defaultSorted={[
             {
-              id: "Deptid",
+              id: "deptid",
               desc: true
             }
           ]}

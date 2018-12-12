@@ -8,6 +8,43 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.Table__pagination {
+  display: flex;
+    justify-content: space-between;
+    border: black;
+    background: lightgrey;
+    padding: 20px 10px;
+}
+
+.Table_pages{
+  display: flex;
+  justify-content: left;
+}
+
+
+.PageSizeOptions{
+  justify-content: flex-end;
+  margin:3px 10px}
+
+.Table__pageButton {
+  font-size: 15px;
+  outline: none;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.Table__pageButton:disabled {
+  cursor: not-allowed;
+  color: gray;
+}
+
+.Table__pageButton--active {
+  color: #45b3e3;
+  font-weight: bold;
+}
+
+
 /* hide Pagination controls
 span.-pageInfo,
 .-previous,
@@ -17,7 +54,36 @@ span.-pageInfo,
 .rt-th input {
   width: 100%;
 }
-
+.Table__pagination {
+  display: flex;
+  justify-content: space-between;
+  border: black;
+  background: lightgrey;
+  padding: 20px 10px;
+}
+.Table_pages {
+  display: flex;
+  justify-content: left;
+}
+.PageSizeOptions {
+  justify-content: flex-end;
+  margin: 3px 10px;
+}
+.Table__pageButton {
+  font-size: 15px;
+  outline: none;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+.Table__pageButton:disabled {
+  cursor: not-allowed;
+  color: gray;
+}
+.Table__pageButton--active {
+  color: #45b3e3;
+  font-weight: bold;
+}
 nav ul li {
   display: inline-block;
 }
