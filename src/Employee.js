@@ -25,18 +25,36 @@ class Employee extends React.Component {
     return event => {
       const identifier = column.id;
       const type = column.type;
-      if (
-        event.target.value === undefined ||
-        event.target.value === null ||
-        event.target.value === ""
-      ) {
-        delete this.state.filterState[identifier];
-        this.setState({
-          ...this.state.filterState
-        });
-        onChange();
-        return;
+      if (type === "date") {
+        if (
+          event._d === undefined ||
+          event._d === null ||
+          event._d === ""
+        ) {
+          delete this.state.filterState[identifier];
+          this.setState({
+            ...this.state.filterState
+          });
+          onChange();
+          return;
+        }
       }
+
+      else {
+        if (
+          event.target.value === undefined ||
+          event.target.value === null ||
+          event.target.value === ""
+        ) {
+          delete this.state.filterState[identifier];
+          this.setState({
+            ...this.state.filterState
+          });
+          onChange();
+          return;
+        }
+      }
+
       if (type === "date") {
         this.setState({
           filterState: {
@@ -75,7 +93,6 @@ class Employee extends React.Component {
   fetchDepartmentDetails = async deptId => {
     if (!this.state.dep_data[deptId]) {
       const json = await axios.get(deptId);
-
       const deptData = json.data;
       this.setState({
         dep_data: { ...this.state.dep_data, [deptId]: deptData }
@@ -85,7 +102,10 @@ class Employee extends React.Component {
 
   fetchGridData = debounce(async (state, instance) => {
     let search = null;
+<<<<<<< HEAD
     //debugger;
+=======
+>>>>>>> cb16327b0e0e0389670d34e75c1117c577d6340a
     const colTypeMapping = state.allDecoratedColumns.reduce(
       (accumulator, currentValue) => {
         return { ...accumulator, [currentValue.id]: currentValue.type };
@@ -94,6 +114,10 @@ class Employee extends React.Component {
     );
     const filterKeys = Object.keys(this.state.filterState);
     if (filterKeys.length !== 0) {
+<<<<<<< HEAD
+=======
+
+>>>>>>> cb16327b0e0e0389670d34e75c1117c577d6340a
       search = "( ";
       search += filterKeys
         .map(key => {
@@ -114,8 +138,8 @@ class Employee extends React.Component {
       size: state.pageSize,
       sort: state.sorted["0"]
         ? state.sorted["0"].id +
-          "," +
-          (state.sorted["0"].desc === false ? "desc" : "asc")
+        "," +
+        (state.sorted["0"].desc === false ? "desc" : "asc")
         : "id",
       search
     };
@@ -160,10 +184,16 @@ class Employee extends React.Component {
           freezeWhenExpanded={true}
           filterable
           pages={pages}
+          Pagination={true}
           showPagination={true}
+<<<<<<< HEAD
           Pagination={true}
           showPaginationTop={true}
           showPaginationBottom={true}
+=======
+          showPaginationBottom={true}
+          showPaginationTop={true}
+>>>>>>> cb16327b0e0e0389670d34e75c1117c577d6340a
           showPageSizeOptions={true}
           PaginationComponent={Pagination}
           manual
@@ -250,8 +280,13 @@ class Employee extends React.Component {
                 >
                   <option value="">Show all</option>
                   <option value="dev">dev</option>
+<<<<<<< HEAD
                   <option value="Tester">Tester</option>
                   <option value="Specialist">Specialist</option>
+=======
+                  <option value="Tester"> Tester </option>
+                  <option value="Specialist"> Specialist </option>
+>>>>>>> cb16327b0e0e0389670d34e75c1117c577d6340a
                   <option value="UI dev">UI dev</option>
                 </select>
               )
@@ -343,7 +378,7 @@ class Employee extends React.Component {
               )
             }
           ]}
-          defaultPageSize={10}
+          defaultPageSize={5}
           className="-striped -highlight"
           getTdProps={() => {
             return {
@@ -361,13 +396,19 @@ class Employee extends React.Component {
             };
           }}
           SubComponent={rows => {
+<<<<<<< HEAD
             const dep = rows.original.Dep_head
               ? rows.original.Dep_head.depthead
               : "";
+=======
+            console.log(rows);
+            const dep = rows.original.Dep_head ? rows.original.Dep_head.depthead : "";
+>>>>>>> cb16327b0e0e0389670d34e75c1117c577d6340a
             return (
               <div className="Posts">
                 <header>
                   <ul>
+<<<<<<< HEAD
                     <li>
                       Dep ID :{" "}
                       {rows.original.Dep_head
@@ -380,6 +421,10 @@ class Employee extends React.Component {
                         ? rows.original.Dep_head.deptname
                         : ""}
                     </li>
+=======
+                    <li>Dep ID : {rows.original.Dep_head ? rows.original.Dep_head.deptid : ""}</li>
+                    <li>Dep Name : {rows.original.Dep_head ? rows.original.Dep_head.deptname : ""}</li>
+>>>>>>> cb16327b0e0e0389670d34e75c1117c577d6340a
                     <li>Dep Head : {dep ? dep.name : ""}</li>
                     <li>City : {dep ? dep.city : ""}</li>
                     <li>Country : {dep ? dep.country : ""}</li>
