@@ -373,6 +373,7 @@ class Employee extends React.Component {
             };
           }}
           SubComponent={rows => {
+            console.log(rows);
             const dep = rows.original.Dep_head
               ? rows.original.Dep_head.depthead
               : "";
