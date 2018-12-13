@@ -173,7 +173,6 @@ class Employee extends React.Component {
           pages={pages}
           Pagination={true}
           showPagination={true}
-          Pagination={true}
           showPaginationTop={true}
           showPaginationBottom={true}
           showPageSizeOptions={true}
@@ -264,7 +263,7 @@ class Employee extends React.Component {
                   <option value="dev">dev</option>
                   <option value="Tester">Tester</option>
                   <option value="Specialist">Specialist</option>
-                  <option value="UI dev">UI dev</option>
+                  <option value="UI">UI dev</option>
                 </select>
               )
             },
@@ -396,7 +395,7 @@ class Employee extends React.Component {
                     <li>Dep Head : {dep ? dep.name : ""}</li>
                     <li>City : {dep ? dep.city : ""}</li>
                     <li>Country : {dep ? dep.country : ""}</li>
-                    <li>Designation : {dep ? dep.designation : ""}</li>
+                    <li>Designation : {dep ? dep.desg : ""}</li>
                     <li>DOJ : {dep ? dep.doj : ""}</li>
                     <li>Grade : {dep ? dep.grade : ""}</li>
                     <li>Salary : {dep ? dep.salary : ""}</li>

@@ -10,21 +10,25 @@ body {
 
 .Table__pagination {
   display: flex;
-    justify-content: space-between;
-    border: black;
-    background: lightgrey;
-    padding: 20px 10px;
+  justify-content: space-between;
+  border: black;
+  background: lightgrey;
+  padding: 20px 10px;
 }
 
-.Table_pages{
+.rt-td {
+  font-style: oblique;
+  font-weight: inherit;
+}
+.Table_pages {
   display: flex;
   justify-content: left;
 }
 
-
-.PageSizeOptions{
+.PageSizeOptions {
   justify-content: flex-end;
-  margin:3px 10px}
+  margin: 3px 10px;
+}
 
 .Table__pageButton {
   font-size: 15px;
@@ -44,7 +48,6 @@ body {
   font-weight: bold;
 }
 
-
 /* hide Pagination controls
 span.-pageInfo,
 .-previous,
@@ -58,8 +61,8 @@ span.-pageInfo,
   display: flex;
   justify-content: space-between;
   border: black;
-  background: lightgrey;
-  padding: 20px 10px;
+  background: #30718e30;
+  padding: 10px 10px;
 }
 .Table_pages {
   display: flex;
@@ -98,8 +101,8 @@ nav ul li a p {
   border-radius: 5px;
   text-decoration: none;
   color: #000000b8;
-  border: 1px solid #ff190075;
-  background: #ff190075;
+  border: 1px solid #294d5d;
+  background: #c2d5de;
 }
 nav ul li a p:hover {
   color: black;
@@ -143,12 +146,27 @@ code {
 
 .Posts li {
   display: inline-table;
+  font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+  font-size: initial;
   margin: 10px;
 }
 
 .Blogs a {
   text-decoration: none;
   color: black;
+}
+.ReactTable .rt-tbody .rt-td {
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 0 0px 0px black;
+  background-color: rgba(113, 224, 218, 0.01);
+}
+.ReactTable .rt-thead .rt-tr {
+  text-align: center;
+  /* text-shadow: 0 0 0px black; */
+  color: #311b1bfa;
+  background-color: #3f727d7a;
+  font-style: oblique;
+  font-weight: 500;
 }
 
 .Blogs a:hover,
