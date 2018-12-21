@@ -78,23 +78,10 @@ class Department extends React.Component {
     });
   }, 500);
 
-  getFilterValueFromState = (identifier, defaultValue = "") => {
-    const filterState = this.state.filterState;
-    if (!filterState) {
-      return defaultValue;
-    }
-    if (
-      typeof filterState[identifier] !== "undefined" ||
-      filterState[identifier] !== null
-    ) {
-      return filterState[identifier];
-    }
-    return defaultValue;
-  };
+
   handleChange = (onChange, column) => {
     return event => {
       const identifier = column.id;
-      //const type = column.type;
       if (
         event.target.value === undefined ||
         event.target.value === null ||
@@ -172,6 +159,7 @@ class Department extends React.Component {
               )
             },
             {
+              id: "depthead.name",
               Header: "DeptHead",
               accessor: "depthead",
               type: "text",
@@ -179,8 +167,8 @@ class Department extends React.Component {
                 <input
                   type="text"
                   value={
-                    this.state.filterState.depthead
-                      ? this.state.filterState.depthead
+                    this.state.filterState["depthead.name"]
+                      ? this.state.filterState["depthead.name"]
                       : ""
                   }
                   onChange={this.handleChange(onChange, column)}

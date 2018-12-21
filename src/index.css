@@ -113,8 +113,7 @@ nav ul {
   margin-block-end: 0em;
   margin-inline-start: 0px;
   margin-inline-end: 0px;
-  padding-inline-start: 0px;
-  display: inline-block;
+  padding-inline-start: 0px;  
 }
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
@@ -160,6 +159,7 @@ code {
   box-shadow: inset 0 0 0px 0px black;
   background-color: rgba(113, 224, 218, 0.01);
 }
+
 .ReactTable .rt-thead .rt-tr {
   text-align: center;
   /* text-shadow: 0 0 0px black; */
@@ -172,4 +172,18 @@ code {
 .Blogs a:hover,
 .Blogs a:active {
   color: orange;
+}
+
+tr:hover {background-color: #f5f5f5;}
+
+div form table{
+border: 1px solid black
+}
+
+div form table tbody tr td{
+  height: 20px;
+}
+
+tbody{
+
 }

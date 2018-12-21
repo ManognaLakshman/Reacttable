@@ -95,8 +95,7 @@ class Employee extends React.Component {
   };
 
   fetchGridData = debounce(async (state, instance) => {
-    let search = null;
-    //debugger;
+    let search = null;    
     const colTypeMapping = state.allDecoratedColumns.reduce(
       (accumulator, currentValue) => {
         return { ...accumulator, [currentValue.id]: currentValue.type };
@@ -125,8 +124,8 @@ class Employee extends React.Component {
       size: state.pageSize,
       sort: state.sorted["0"]
         ? state.sorted["0"].id +
-          "," +
-          (state.sorted["0"].desc === false ? "desc" : "asc")
+        "," +
+        (state.sorted["0"].desc === false ? "desc" : "asc")
         : "id",
       search
     };
