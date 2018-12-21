@@ -96,7 +96,6 @@ class Employee extends React.Component {
 
   fetchGridData = debounce(async (state, instance) => {
     let search = null;
-    //debugger;
     const colTypeMapping = state.allDecoratedColumns.reduce(
       (accumulator, currentValue) => {
         return { ...accumulator, [currentValue.id]: currentValue.type };

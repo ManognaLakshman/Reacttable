@@ -94,6 +94,15 @@ nav ul li a {
   text-decoration: none;
   margin: 0px 10px;
 }
+header,
+hgroup,
+main,
+nav,
+section {
+  display: block;
+  text-align: -webkit-right;
+}
+
 nav ul li a p {
   padding: 7px 20px;
   font-weight: 500;
@@ -167,6 +176,30 @@ code {
   background-color: #3f727d7a;
   font-style: oblique;
   font-weight: 500;
+}
+.Button {
+  background-color: transparent;
+  border: none;
+  color: white;
+  outline: none;
+  cursor: pointer;
+  font: inherit;
+  padding: 10px;
+  margin: 10px;
+  font-weight: bold;
+}
+
+.Button:first-of-type {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.Success {
+  color: #5c9210;
+}
+
+.Danger {
+  color: #944317;
 }
 
 .Blogs a:hover,
