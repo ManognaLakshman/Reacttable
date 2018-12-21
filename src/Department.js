@@ -28,7 +28,6 @@ class Department extends React.Component {
     );
     const filterKeys = Object.keys(this.state.filterState);
     if (filterKeys.length !== 0) {
-
       search = "( ";
       search += filterKeys
         .map(key => {
@@ -49,8 +48,8 @@ class Department extends React.Component {
       size: state.pageSize,
       sort: state.sorted["0"]
         ? state.sorted["0"].id +
-        "," +
-        (state.sorted["0"].desc === false ? "desc" : "asc")
+          "," +
+          (state.sorted["0"].desc === false ? "desc" : "asc")
         : "id",
       search
     };

@@ -30,3 +30,11 @@
     transform: rotate(360deg);
   }
 }
+.userNameView {
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 15px;
+  font-family: auto;
+  color: #4c478ae0;
+  font-size: larger;
+}
