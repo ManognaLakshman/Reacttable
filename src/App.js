@@ -4,37 +4,69 @@ import Department from "./Department";
 import { Route, Switch, Link } from "react-router-dom";
 import Search from "./Search";
 import "./App.css";
-
+import Axios from "axios";
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       userDetails: {},
-      isLoggedIn: false
+      isLoggedIn: false,
+      userId: null,
+      userTextBoxValue: ""
     };
   }
 
-  componentWillMount() {
-    this.username = require("./UserInfo.json");
-    console.log(this.username);
-    if (this.username["name"] === "Manogna") {
+  async loadUserDetails(userId) {
+    try {
+      const userDetails = await Axios.get(`/data/${userId}.json`);
       this.setState({
-        userDetails: this.username,
-        isLoggedIn: true
+        userDetails: userDetails.data,
+        isLoggedIn: true,
+        userId: userId
       });
-    } else {
-      alert("please enter correct user details");
+      sessionStorage.setItem("userid", userId);
+    } catch {
+      alert("Not Authorized");
+    }
+  }
+  async componentDidMount() {
+    const savedUserId = sessionStorage.getItem("userid");
+    if (savedUserId) {
+      this.loadUserDetails(savedUserId);
     }
   }
 
+  captureUserId(ev) {
+    this.setState({ userTextBoxValue: ev.target.value });
+  }
+
+  handleLogin(ev) {
+    ev.preventDefault();
+    const userId = this.state.userTextBoxValue;
+    this.loadUserDetails(userId);
+  }
+
+  LogOutUser(event) {
+    console.log("User logged out");
+    sessionStorage.clear();
+    window.location.href = "/";
+  }
+
   render() {
-    let username = `UserName: ${this.state.userDetails["name"]}`;
+    let username = `UserName: ${this.state.userDetails.name}`;
     let view;
     if (this.state.isLoggedIn) {
       view = (
         <div>
           <p className="userNameView">{username} </p>
+          <input
+            type="button"
+            value="LogOut"
+            onClick={event => this.LogOutUser(event)}
+          />
+          <br />
+
           <header>
             <nav>
               <ul>
@@ -50,7 +82,11 @@ class App extends React.Component {
                 </li>
                 <li>
                   <Link to="Search">
-                    <p>Search Department<br />Details</p>
+                    <p>
+                      Search Department
+                      <br />
+                      Details
+                    </p>
                   </Link>
                 </li>
               </ul>
@@ -63,12 +99,25 @@ class App extends React.Component {
           </Switch>
         </div>
       );
-    }
-    else {
-      view = <div />;
+    } else {
+      view = (
+        <div>
+          <form onSubmit={ev => this.handleLogin(ev)}>
+            <input
+              type="text"
+              maxLength="25"
+              onChange={ev => this.captureUserId(ev)}
+              placeholder="Username"
+              value={this.state.userTextBoxValue}
+            />
+            <br />
+            <br />
+            <input type="submit" value="Submit" />
+          </form>
+        </div>
+      );
     }
     return <div>{view}</div>;
   }
 }
 export default App;
-
