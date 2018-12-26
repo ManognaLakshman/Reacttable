@@ -1,5 +1,7 @@
 import React from "react";
 import "./index.css";
+import { connect } from "react-redux";
+
 
 class DepartmentSearch extends React.Component {
     constructor(props) {
@@ -10,6 +12,7 @@ class DepartmentSearch extends React.Component {
     }
 
     handleChange = event => {
+        // console.log(this.props.depDet);
         if ([event.target.name]["0"] === "deptid") {
             let reg = new RegExp('^[0-9]*$');
             if (reg.test([event.target.value]) === false) {
@@ -29,28 +32,21 @@ class DepartmentSearch extends React.Component {
             });
         }
         else {
-            const dep_details = {
-                ...this.state.dep_details,
-                [event.target.name]: event.target.value
-            }
-            this.setState({
-                dep_details
-            });
+            this.props.onHandleChange(event);
         }
 
     }
 
     handleSubmit = async (event) => {
-        if (Object.keys(this.state.dep_details).length === 0) {
+        if (Object.keys(this.props.depDet).length === 0) {
             alert("At least 1 entry must be made");
             this.refs.deptid.focus();
             return false;
         }
-        this.props.handleDepartmentSearch(this.state.dep_details);
+        this.props.handleDepartmentSearch(this.props.depDet);
     }
 
     render() {
-
         return (
             <div>
                 <form>
@@ -61,8 +57,10 @@ class DepartmentSearch extends React.Component {
                                     <label>Dep ID: </label>
                                 </td>
                                 <td >
-                                    <input ref="deptid" type="text" name="deptid" value={this.state.dep_details.deptid ?
-                                        this.state.dep_details.deptid : ""}
+                                    <input ref="deptid" type="text" name="deptid"
+                                        value={this.props.depDet.deptid ?
+                                            this.props.depDet.deptid
+                                            : ""}
                                         onChange={this.handleChange}
                                         autoFocus />
                                 </td>
@@ -72,8 +70,10 @@ class DepartmentSearch extends React.Component {
                                     <label>Dep Name: </label>
                                 </td>
                                 <td>
-                                    <input type="text" name="deptname" value={this.state.dep_details.deptname ?
-                                        this.state.dep_details.deptname : ""}
+                                    <input type="text" name="deptname"
+                                        value={this.props.depDet.deptname ?
+                                            this.props.depDet.deptname
+                                            : ""}
                                         onChange={this.handleChange} />
                                 </td>
                             </tr>
@@ -83,8 +83,9 @@ class DepartmentSearch extends React.Component {
                                 </td>
                                 <td>
                                     <input type="text" name="depthead.name"
-                                        value={this.state.dep_details["depthead.name"] ?
-                                            this.state.dep_details["depthead.name"] : ""}
+                                        value={this.props.depDet["depthead.name"] ?
+                                            this.props.depDet["depthead.name"]
+                                            : ""}
                                         onChange={this.handleChange} />
                                 </td>
                             </tr>
@@ -101,4 +102,19 @@ class DepartmentSearch extends React.Component {
     }
 }
 
-export default DepartmentSearch;
+const mapStateToProps = state => {
+    return {
+        depDet: state.dep_details
+    };
+};
+
+const mapDispatchToProps = dispatch => {
+    return {
+        onHandleChange: (event) => dispatch({
+            type: 'HANDLECHANGE',
+            payload: { eventName: [event.target.name], eventValue: [event.target.value] }
+        })
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(DepartmentSearch);
