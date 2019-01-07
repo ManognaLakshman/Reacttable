@@ -86,7 +86,7 @@ class DepartmentSearch extends React.Component {
 
 const mapStateToProps = state => {
     return {
-        depDet: state.dep_details
+        depDet: state.form.dep_details
     };
 };
 

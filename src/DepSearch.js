@@ -6,17 +6,10 @@ import axios from "axios";
 import "./index.css";
 import debounce from "lodash/debounce";
 import Pagination from "./Pagination";
+import { connect } from "react-redux";
+import * as actionTypes from './store/actions';
 
 class DepSearch extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            dep_data: [],
-            isLoading: false,
-            filterState: {},
-            pages: -1
-        };
-    }
 
     fetchGridData = debounce(async (state, instance) => {
         let search = "";
@@ -35,9 +28,9 @@ class DepSearch extends React.Component {
             search1 += " )";
             searchParams.push(search1);
         }
-        if (Object.keys(this.state.filterState).length > 0) {
+        if (Object.keys(this.props.filterState).length > 0) {
             let search2 = "( ";
-            search2 += this.applyFilterCriteria(this.state.filterState, colTypeMapping, " and ");
+            search2 += this.applyFilterCriteria(this.props.filterState, colTypeMapping, " and ");
             search2 += " )"
             searchParams.push(search2);
         }
@@ -53,9 +46,7 @@ class DepSearch extends React.Component {
             search
         };
 
-        this.setState({
-            isLoading: true
-        });
+        this.props.onLoadChange();
 
         const json = await axios.get(
             "https://genericspringrest.herokuapp.com/department",
@@ -68,36 +59,21 @@ class DepSearch extends React.Component {
             depthead: result.depthead ? result.depthead.name : ""
         }));
 
-        this.setState({
-            ...this.state,
-            dep_data: newData,
-            isLoading: false,
-            pages: json.data.totalPages
-        });
+        this.props.onFetchingData(newData, json.data.totalPages);
     }, 500);
 
     handleChange = (onChange, column) => {
         return event => {
-            const identifier = column.id;
             if (
                 event.target.value === undefined ||
                 event.target.value === null ||
                 event.target.value === ""
             ) {
-                delete this.state.filterState[identifier];
-                this.setState({
-                    ...this.state.filterState
-                });
+                this.props.onDeleteFilter(column);
                 onChange();
                 return;
             } else {
-                const filterState = {
-                    ...this.state.filterState,
-                    [identifier]: event.target.value
-                };
-                this.setState({
-                    filterState
-                });
+                this.props.onHandleFilter(event, column);
             }
             onChange();
         }
@@ -122,7 +98,9 @@ class DepSearch extends React.Component {
     }
 
     render() {
-        const { dep_data, isLoading, pages } = this.state;
+        const dep_data = this.props.data;
+        const isLoading = this.props.loading;
+        const pages = this.props.pages;
         return (
             <div>
                 <ReactTable
@@ -148,8 +126,8 @@ class DepSearch extends React.Component {
                                     size="8"
                                     onChange={this.handleChange(onChange, column)}
                                     value={
-                                        this.state.filterState.deptid
-                                            ? this.state.filterState.deptid
+                                        this.props.filterState.deptid
+                                            ? this.props.filterState.deptid
                                             : ""
                                     }
                                 />
@@ -165,8 +143,8 @@ class DepSearch extends React.Component {
                                     size="8"
                                     onChange={this.handleChange(onChange, column)}
                                     value={
-                                        this.state.filterState.deptname
-                                            ? this.state.filterState.deptname
+                                        this.props.filterState.deptname
+                                            ? this.props.filterState.deptname
                                             : ""
                                     }
                                 />
@@ -181,8 +159,8 @@ class DepSearch extends React.Component {
                                 <input
                                     type="text"
                                     value={
-                                        this.state.filterState["depthead.name"]
-                                            ? this.state.filterState["depthead.name"]
+                                        this.props.filterState["depthead.name"]
+                                            ? this.props.filterState["depthead.name"]
                                             : ""
                                     }
                                     onChange={this.handleChange(onChange, column)}
@@ -204,5 +182,33 @@ class DepSearch extends React.Component {
     }
 }
 
+const mapStateToProps = state => {
+    return {
+        data: state.depSearch.dep_data,
+        loading: state.depSearch.isLoading,
+        filterState: state.depSearch.filterState,
+        pages: state.depSearch.pages
+    }
+}
 
-export default DepSearch;
+const mapDispatchToProps = dispatch => {
+    return {
+        onHandleFilter: (event, column) => dispatch({
+            type: actionTypes.HANDLE_FILTERS,
+            payload: { identifier: column.id, value: event.target.value }
+        }),
+        onDeleteFilter: (column) => dispatch({
+            type: actionTypes.DELETE_FILTER,
+            payload: { identifier: column.id }
+        }),
+        onFetchingData: (newData, pages) => dispatch({
+            type: actionTypes.FETCH_DATA,
+            payload: { newData: newData, isLoading: false, pages: pages }
+        }),
+        onLoadChange: () => dispatch({
+            type: actionTypes.LOAD_CHANGE
+        })
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(DepSearch);

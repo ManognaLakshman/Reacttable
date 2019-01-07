@@ -15,7 +15,7 @@ class Search extends React.Component {
 
     componentWillMount() {
         this.props.onSearch();
-
+        this.props.onRefresh();
     }
     handleDepartmentSearch = (data) => {
         this.setState({
@@ -46,9 +46,9 @@ class Search extends React.Component {
 
 const mapStateToProps = state => {
     return {
-        depDet: state.dep_details,
-        SeaDet: state.searchDetails,
-        flag1: state.flag
+        depDet: state.form.dep_details,
+        SeaDet: state.form.searchDetails,
+        flag1: state.form.flag,
     };
 };
 
@@ -60,6 +60,9 @@ const mapDispatchToProps = dispatch => {
         onHandleDepSearch: (data) => dispatch({
             type: actionTypes.HANDLEDEPSEARCH,
             payload: { searchData: data }
+        }),
+        onRefresh: () => dispatch({
+            type: actionTypes.REFRESH_TABLE
         })
     };
 };
