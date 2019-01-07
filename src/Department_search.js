@@ -1,18 +1,11 @@
 import React from "react";
 import "./index.css";
 import { connect } from "react-redux";
+import * as actionTypes from './store/actions';
 
 
 class DepartmentSearch extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            dep_details: {}
-        }
-    }
-
     handleChange = event => {
-        // console.log(this.props.depDet);
         if ([event.target.name]["0"] === "deptid") {
             let reg = new RegExp('^[0-9]*$');
             if (reg.test([event.target.value]) === false) {
@@ -20,21 +13,10 @@ class DepartmentSearch extends React.Component {
                 return false;
             }
         }
-
-        if (
-            event.target.value === undefined ||
-            event.target.value === null ||
-            event.target.value === ""
-        ) {
-            delete this.state.dep_details[event.target.name];
-            this.setState({
-                ...this.state.dep_details
-            });
+        this.props.onHandleChange(event);
+        if (event.target.value === "") {
+            this.props.onDeleteChange(event);
         }
-        else {
-            this.props.onHandleChange(event);
-        }
-
     }
 
     handleSubmit = async (event) => {
@@ -111,8 +93,12 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         onHandleChange: (event) => dispatch({
-            type: 'HANDLECHANGE',
+            type: actionTypes.HANDLECHANGE,
             payload: { eventName: [event.target.name], eventValue: [event.target.value] }
+        }),
+        onDeleteChange: (event) => dispatch({
+            type: actionTypes.HANDLEDELETE,
+            payload: { eventName: [event.target.name] }
         })
     };
 };

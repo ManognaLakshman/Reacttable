@@ -28,6 +28,7 @@ class DepSearch extends React.Component {
         );
 
         let searchParams = [];
+
         if (Object.keys(this.props.searchDetails).length > 0) {
             let search1 = "( ";
             search1 += this.applyFilterCriteria(this.props.searchDetails, colTypeMapping, " or ");
@@ -99,26 +100,23 @@ class DepSearch extends React.Component {
                 });
             }
             onChange();
-        };
+        }
     };
-
 
     applyFilterCriteria(filterData, colTypeMapping, joinType) {
         const filterKeys = Object.keys(filterData);
         let search = "";
         if (filterKeys.length !== 0) {
-            search += filterKeys
-                .map(key => {
-                    let suffix = "";
-                    if (colTypeMapping[key] && colTypeMapping[key] === "text") {
-                        suffix = "*";
-                    }
-                    return filterData[key]
-                        ? key + ":" + filterData[key] + suffix
-                        : "";
-                })
+            search += filterKeys.map(key => {
+                let suffix = "";
+                if (colTypeMapping[key] && colTypeMapping[key] === "text") {
+                    suffix = "*";
+                }
+                return filterData[key]
+                    ? key + ":" + filterData[key] + suffix
+                    : "";
+            })
                 .join(joinType);
-            ;
         }
         return search;
     }
@@ -205,5 +203,6 @@ class DepSearch extends React.Component {
         );
     }
 }
+
 
 export default DepSearch;
