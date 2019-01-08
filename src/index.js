@@ -5,13 +5,15 @@ import App from "./App";
 import { createStore, combineReducers } from 'redux';
 import reducerForm from "./store/reducers/reducer";
 import reducerDepSearch from "./store/reducers/reducerDepSearch";
+import employeeReducer from "./store/reducers/employeeReducer";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import * as serviceWorker from "./serviceWorker";
 
 const rootReducer = combineReducers({
   form: reducerForm,
-  depSearch: reducerDepSearch
+  depSearch: reducerDepSearch,
+  emp: employeeReducer
 })
 
 const store = createStore(rootReducer);

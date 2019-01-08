@@ -6,8 +6,10 @@ import axios from "axios";
 import debounce from "lodash/debounce";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import moment from "moment";
+//import moment from "moment";
 import Pagination from "./Pagination";
+import { connect } from "react-redux";
+import * as actionTypes from './store/actions';
 
 class Employee extends React.Component {
   constructor(props) {
@@ -23,14 +25,15 @@ class Employee extends React.Component {
 
   handleChange = (onChange, column) => {
     return event => {
-      const identifier = column.id;
+      //const identifier = column.id;
       const type = column.type;
       if (type === "date") {
         if (event._d === undefined || event._d === null || event._d === "") {
-          delete this.state.filterState[identifier];
-          this.setState({
-            ...this.state.filterState
-          });
+          this.props.onDeleteFilter(column);
+          // delete this.state.filterState[identifier];
+          // this.setState({
+          //   ...this.state.filterState
+          // });
           onChange();
           return;
         }
@@ -40,31 +43,20 @@ class Employee extends React.Component {
           event.target.value === null ||
           event.target.value === ""
         ) {
-          delete this.state.filterState[identifier];
-          this.setState({
-            ...this.state.filterState
-          });
+          this.props.onDeleteFilter(column);
+          // delete this.state.filterState[identifier];
+          // this.setState({
+          //   ...this.state.filterState
+          // });
           onChange();
           return;
         }
       }
 
       if (type === "date") {
-        this.setState({
-          filterState: {
-            ...this.state.filterState,
-            [identifier]: moment(event._d).format("YYYY-MM-DD")
-          }
-        });
+        this.props.onDateChange(column, event);
       } else {
-        const filterState = {
-          ...this.state.filterState,
-          [identifier]: event.target.value
-        };
-        this.setState({
-          filterState
-        });
-        console.log(filterState);
+        this.props.onFilterChange(column, event);
       }
       onChange();
     };
@@ -102,7 +94,7 @@ class Employee extends React.Component {
       },
       {}
     );
-    const filterKeys = Object.keys(this.state.filterState);
+    const filterKeys = Object.keys(this.props.filterState);
     if (filterKeys.length !== 0) {
       search = "( ";
       search += filterKeys
@@ -111,8 +103,8 @@ class Employee extends React.Component {
           if (colTypeMapping[key] && colTypeMapping[key] === "text") {
             suffix = "*";
           }
-          return this.state.filterState[key]
-            ? key + ":" + this.state.filterState[key] + suffix
+          return this.props.filterState[key]
+            ? key + ":" + this.props.filterState[key] + suffix
             : "";
         })
         .join(" and ");
@@ -130,9 +122,7 @@ class Employee extends React.Component {
       search
     };
 
-    this.setState({
-      isLoading: true
-    });
+    this.props.onLoadData();
 
     const json = await axios.get(
       "https://genericspringrest.herokuapp.com/employee",
@@ -153,16 +143,13 @@ class Employee extends React.Component {
       Dep_head: result.dept
     }));
 
-    this.setState({
-      ...this.state,
-      emp_data: newData,
-      isLoading: false,
-      pages: json.data.totalPages
-    });
+    this.props.onFetchingData(newData, json.data.totalPages);
   }, 500);
 
   render() {
-    const { emp_data, isLoading, pages } = this.state;
+    const emp_data = this.props.emp_data;
+    const isLoading = this.props.isLoading;
+    const pages = this.props.pages;
     const content = (
       <div>
         <ReactTable
@@ -191,7 +178,7 @@ class Employee extends React.Component {
                   size="8"
                   onChange={this.handleChange(onChange, column)}
                   value={
-                    this.state.filterState.id ? this.state.filterState.id : ""
+                    this.props.filterState.id ? this.props.filterState.id : ""
                   }
                 />
               )
@@ -206,8 +193,8 @@ class Employee extends React.Component {
                   size="8"
                   onChange={this.handleChange(onChange, column)}
                   value={
-                    this.state.filterState.name
-                      ? this.state.filterState.name
+                    this.props.filterState.name
+                      ? this.props.filterState.name
                       : ""
                   }
                 />
@@ -224,8 +211,8 @@ class Employee extends React.Component {
                   size="8"
                   onChange={this.handleChange(onChange, column)}
                   value={
-                    this.state.filterState.skill
-                      ? this.state.filterState.skill
+                    this.props.filterState.skill
+                      ? this.props.filterState.skill
                       : ""
                   }
                 />
@@ -239,7 +226,7 @@ class Employee extends React.Component {
                 <DatePicker
                   placeholderText="Select a date"
                   value={
-                    this.state.filterState.doj ? this.state.filterState.doj : ""
+                    this.props.filterState.doj ? this.props.filterState.doj : ""
                   }
                   onChange={this.handleChange(onChange, column)}
                 />
@@ -276,8 +263,8 @@ class Employee extends React.Component {
                   size="8"
                   onChange={this.handleChange(onChange, column)}
                   value={
-                    this.state.filterState.grade
-                      ? this.state.filterState.grade
+                    this.props.filterState.grade
+                      ? this.props.filterState.grade
                       : ""
                   }
                 />
@@ -294,8 +281,8 @@ class Employee extends React.Component {
                   size="8"
                   onChange={this.handleChange(onChange, column)}
                   value={
-                    this.state.filterState["dept.deptname"]
-                      ? this.state.filterState["dept.deptname"]
+                    this.props.filterState["dept.deptname"]
+                      ? this.props.filterState["dept.deptname"]
                       : ""
                   }
                 />
@@ -311,8 +298,8 @@ class Employee extends React.Component {
                   size="8"
                   onChange={this.handleChange(onChange, column)}
                   value={
-                    this.state.filterState.salary
-                      ? this.state.filterState.salary
+                    this.props.filterState.salary
+                      ? this.props.filterState.salary
                       : ""
                   }
                 />
@@ -328,8 +315,8 @@ class Employee extends React.Component {
                   size="8"
                   onChange={this.handleChange(onChange, column)}
                   value={
-                    this.state.filterState.city
-                      ? this.state.filterState.city
+                    this.props.filterState.city
+                      ? this.props.filterState.city
                       : ""
                   }
                 />
@@ -345,8 +332,8 @@ class Employee extends React.Component {
                   size="8"
                   onChange={this.handleChange(onChange, column)}
                   value={
-                    this.state.filterState.country
-                      ? this.state.filterState.country
+                    this.props.filterState.country
+                      ? this.props.filterState.country
                       : ""
                   }
                 />
@@ -371,7 +358,6 @@ class Employee extends React.Component {
             };
           }}
           SubComponent={rows => {
-            console.log(rows);
             const dep = rows.original.Dep_head
               ? rows.original.Dep_head.depthead
               : "";
@@ -412,4 +398,38 @@ class Employee extends React.Component {
   }
 }
 
-export default Employee;
+const mapStateToProps = state => {
+  return {
+    emp_data: state.emp.emp_data,
+    dep_data: state.emp.dep_data_emp,
+    isLoading: state.emp.isLoading,
+    filterState: state.emp.filterState,
+    pages: state.emp.pages
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    onDateChange: (column, event) => dispatch({
+      type: actionTypes.DATE_CHANGE,
+      payload: { identifier: column.id, value: event._d }
+    }),
+    onFilterChange: (column, event) => dispatch({
+      type: actionTypes.FILTER_CHANGE,
+      payload: { identifier: column.id, value: event.target.value }
+    }),
+    onFetchingData: (newData, pages) => dispatch({
+      type: actionTypes.FETCH_EMPLOYEE,
+      payload: { empData: newData, pages: pages }
+    }),
+    onLoadData: () => dispatch({
+      type: actionTypes.LOAD_EMPLOYEE
+    }),
+    onDeleteFilter: (column) => dispatch({
+      type: actionTypes.DELETE_FILTER_EMP,
+      payload: { identifier: column.id }
+    })
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Employee);
