@@ -4,7 +4,6 @@ import _ from 'lodash';
 
 const initialState = {
     emp_data: [],
-    dep_data_emp: {},
     isLoading: false,
     filterState: {},
     pages: -1

@@ -12,28 +12,13 @@ import { connect } from "react-redux";
 import * as actionTypes from './store/actions';
 
 class Employee extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      emp_data: [],
-      dep_data: {},
-      isLoading: false,
-      filterState: {},
-      pages: -1
-    };
-  }
 
   handleChange = (onChange, column) => {
     return event => {
-      //const identifier = column.id;
       const type = column.type;
       if (type === "date") {
         if (event._d === undefined || event._d === null || event._d === "") {
           this.props.onDeleteFilter(column);
-          // delete this.state.filterState[identifier];
-          // this.setState({
-          //   ...this.state.filterState
-          // });
           onChange();
           return;
         }
@@ -44,10 +29,6 @@ class Employee extends React.Component {
           event.target.value === ""
         ) {
           this.props.onDeleteFilter(column);
-          // delete this.state.filterState[identifier];
-          // this.setState({
-          //   ...this.state.filterState
-          // });
           onChange();
           return;
         }
@@ -74,16 +55,6 @@ class Employee extends React.Component {
       return filterState[identifier];
     }
     return defaultValue;
-  };
-
-  fetchDepartmentDetails = async deptId => {
-    if (!this.state.dep_data[deptId]) {
-      const json = await axios.get(deptId);
-      const deptData = json.data;
-      this.setState({
-        dep_data: { ...this.state.dep_data, [deptId]: deptData }
-      });
-    }
   };
 
   fetchGridData = debounce(async (state, instance) => {
@@ -401,7 +372,6 @@ class Employee extends React.Component {
 const mapStateToProps = state => {
   return {
     emp_data: state.emp.emp_data,
-    dep_data: state.emp.dep_data_emp,
     isLoading: state.emp.isLoading,
     filterState: state.emp.filterState,
     pages: state.emp.pages
