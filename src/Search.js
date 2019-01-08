@@ -39,7 +39,6 @@ class Search extends React.Component {
             <div>
                 {this.manageComponents(this.props.flag1)}
             </div>
-
         )
     }
 }
