@@ -9,15 +9,6 @@ import { connect } from "react-redux";
 import * as actionTypes from './store/actions';
 
 class Department extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      dep_data: [],
-      isLoading: false,
-      filterState: {},
-      pages: -1
-    };
-  }
 
   fetchGridData = debounce(async (state, instance) => {
     let search = null;
