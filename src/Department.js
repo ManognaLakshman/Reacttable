@@ -6,9 +6,12 @@ import "./index.css";
 import debounce from "lodash/debounce";
 import Pagination from "./Pagination";
 import { connect } from "react-redux";
-import * as actionTypes from './store/actions';
+import * as actionCreators from './store/actions/actions';
 
 class Department extends React.Component {
+  componentWillUnmount() {
+    this.props.onDepartmentUnmount();
+  }
 
   fetchGridData = debounce(async (state, instance) => {
     let search = null;
@@ -176,21 +179,11 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onHandleFilter: (event, column) => dispatch({
-      type: actionTypes.HANDLE_FILTERS,
-      payload: { identifier: column.id, value: event.target.value }
-    }),
-    onDeleteFilter: (column) => dispatch({
-      type: actionTypes.DELETE_FILTER,
-      payload: { identifier: column.id }
-    }),
-    onFetchingData: (newData, pages) => dispatch({
-      type: actionTypes.FETCH_DATA,
-      payload: { newData: newData, isLoading: false, pages: pages }
-    }),
-    onLoadChange: () => dispatch({
-      type: actionTypes.LOAD_CHANGE
-    })
+    onHandleFilter: (event, column) => dispatch(actionCreators.handle_filters(event, column)),
+    onDeleteFilter: (column) => dispatch(actionCreators.delete_filter(column)),
+    onFetchingData: (newData, pages) => dispatch(actionCreators.fetch_data(newData, pages)),
+    onLoadChange: () => dispatch(actionCreators.load_change()),
+    onDepartmentUnmount: () => dispatch(actionCreators.department_unmount())
   }
 }
 

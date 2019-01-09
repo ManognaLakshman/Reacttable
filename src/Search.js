@@ -3,7 +3,7 @@ import "./index.css";
 import DepartmentSearch from "./Department_search";
 import DepSearch from "./DepSearch";
 import { connect } from "react-redux";
-import * as actionTypes from './store/actions';
+import * as actionCreators from './store/actions/actions';
 
 class Search extends React.Component {
     constructor(props) {
@@ -53,16 +53,9 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        onSearch: () => dispatch({
-            type: actionTypes.HANDLENEWSEARCH
-        }),
-        onHandleDepSearch: (data) => dispatch({
-            type: actionTypes.HANDLEDEPSEARCH,
-            payload: { searchData: data }
-        }),
-        onRefresh: () => dispatch({
-            type: actionTypes.REFRESH_TABLE
-        })
+        onSearch: () => dispatch(actionCreators.handlenewsearch()),
+        onHandleDepSearch: (data) => dispatch(actionCreators.handledepsearch(data)),
+        onRefresh: () => dispatch(actionCreators.refresh_table())
     };
 };
 

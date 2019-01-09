@@ -6,12 +6,15 @@ import axios from "axios";
 import debounce from "lodash/debounce";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-//import moment from "moment";
 import Pagination from "./Pagination";
 import { connect } from "react-redux";
-import * as actionTypes from './store/actions';
+import * as actionCreators from './store/actions/actions';
 
 class Employee extends React.Component {
+
+  componentWillUnmount() {
+    this.props.onEmployeeUnmount();
+  }
 
   handleChange = (onChange, column) => {
     return event => {
@@ -44,7 +47,7 @@ class Employee extends React.Component {
   };
 
   getFilterValueFromState = (identifier, defaultValue = "") => {
-    const filterState = this.state.filterState;
+    const filterState = this.props.filterState;
     if (!filterState) {
       return defaultValue;
     }
@@ -380,25 +383,12 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onDateChange: (column, event) => dispatch({
-      type: actionTypes.DATE_CHANGE,
-      payload: { identifier: column.id, value: event._d }
-    }),
-    onFilterChange: (column, event) => dispatch({
-      type: actionTypes.FILTER_CHANGE,
-      payload: { identifier: column.id, value: event.target.value }
-    }),
-    onFetchingData: (newData, pages) => dispatch({
-      type: actionTypes.FETCH_EMPLOYEE,
-      payload: { empData: newData, pages: pages }
-    }),
-    onLoadData: () => dispatch({
-      type: actionTypes.LOAD_EMPLOYEE
-    }),
-    onDeleteFilter: (column) => dispatch({
-      type: actionTypes.DELETE_FILTER_EMP,
-      payload: { identifier: column.id }
-    })
+    onDateChange: (column, event) => dispatch(actionCreators.date_change(column, event)),
+    onFilterChange: (column, event) => dispatch(actionCreators.filter_change(column, event)),
+    onFetchingData: (newData, pages) => dispatch(actionCreators.fetch_employee(newData, pages)),
+    onLoadData: () => dispatch(actionCreators.load_employee()),
+    onDeleteFilter: (column) => dispatch(actionCreators.delete_filter_emp(column)),
+    onEmployeeUnmount: () => dispatch(actionCreators.employee_unmount())
   }
 }
 

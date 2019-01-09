@@ -1,4 +1,4 @@
-import * as actionTypes from "../actions";
+import * as actionTypes from "../actions/actions";
 import moment from "moment";
 import _ from 'lodash';
 
@@ -43,6 +43,10 @@ const reducer = (state = initialState, action) => {
             const newState = _.cloneDeep(state);
             delete newState.filterState[action.payload.identifier];
             return newState;
+        case actionTypes.EMPLOYEE_UNMOUNT:
+            return {
+                ...initialState
+            }
         default:
             return state;
     }

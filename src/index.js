@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
-import { createStore, combineReducers } from 'redux';
+import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
 import reducerForm from "./store/reducers/reducer";
 import reducerDepSearch from "./store/reducers/reducerDepSearch";
 import employeeReducer from "./store/reducers/employeeReducer";
@@ -16,7 +16,21 @@ const rootReducer = combineReducers({
   emp: employeeReducer
 })
 
-const store = createStore(rootReducer);
+const fetchData = store => {
+  return next => {
+    return action => {
+      console.log('[Middleware] Dispatching ', action);
+      const result = next(action);
+      console.log('[Middleware] next state ', store.getState());
+      return result;
+    }
+  }
+}
+
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
+  window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({ latency: 0 }) : compose;
+
+const store = createStore(rootReducer, composeEnhancers(applyMiddleware(fetchData)));
 
 const app = (
   <Provider store={store}>

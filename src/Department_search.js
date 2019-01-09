@@ -1,7 +1,7 @@
 import React from "react";
 import "./index.css";
 import { connect } from "react-redux";
-import * as actionTypes from './store/actions';
+import * as actionCreaters from './store/actions/actions';
 
 
 class DepartmentSearch extends React.Component {
@@ -92,14 +92,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        onHandleChange: (event) => dispatch({
-            type: actionTypes.HANDLECHANGE,
-            payload: { eventName: [event.target.name], eventValue: [event.target.value] }
-        }),
-        onDeleteChange: (event) => dispatch({
-            type: actionTypes.HANDLEDELETE,
-            payload: { eventName: [event.target.name] }
-        })
+        onHandleChange: (event) => dispatch(actionCreaters.handlechange(event)),
+        onDeleteChange: (event) => dispatch(actionCreaters.handledelete(event))
     };
 };
 
