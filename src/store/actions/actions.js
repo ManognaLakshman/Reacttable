@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 export const HANDLECHANGE = 'HANDLECHANGE';
 export const HANDLEDELETE = 'HANDLEDELETE';
 export const HANDLENEWSEARCH = 'HANDLENEWSEARCH';
@@ -14,6 +16,7 @@ export const LOAD_EMPLOYEE = 'LOAD_EMPLOYEE';
 export const DELETE_FILTER_EMP = 'DELETE_FILTER_EMP';
 export const EMPLOYEE_UNMOUNT = 'EMPLOYEE_UNMOUNT';
 export const DEPARTMENT_UNMOUNT = 'DEPARTMENT_UNMOUNT';
+export const API_CALL = 'API_CALL';
 
 export const handlechange = (event) => {
     return {
@@ -95,13 +98,6 @@ export const filter_change = (column, event) => {
     }
 }
 
-export const fetch_employee = (newData, pages) => {
-    return {
-        type: FETCH_EMPLOYEE,
-        payload: { empData: newData, pages: pages }
-    }
-}
-
 export const load_employee = () => {
     return {
         type: LOAD_EMPLOYEE
@@ -120,3 +116,20 @@ export const employee_unmount = () => {
         type: EMPLOYEE_UNMOUNT
     }
 }
+
+export const axiosCall = (params) => async (dispatch, getState) => {
+    try {
+        const request = await axios.get(
+            "https://genericspringrest.herokuapp.com/employee",
+            { params: params }
+        );
+        dispatch({
+            type: API_CALL,
+            payload: { newData: request, isLoading: false, pages: request.data.totalPages }
+        })
+    }
+    catch (error) {
+        return error;
+    }
+}
+

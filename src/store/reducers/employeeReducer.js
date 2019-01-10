@@ -47,6 +47,27 @@ const reducer = (state = initialState, action) => {
             return {
                 ...initialState
             }
+        case actionTypes.API_CALL:
+            console.log('in api_call action');
+            const newData = action.payload.newData.data.content.map(result => ({
+                id: result.id,
+                name: result.name,
+                skill: result.skill,
+                salary: result.salary,
+                grade: result.grade,
+                city: result.city,
+                country: result.country,
+                doj: result.doj,
+                desg: result.desg,
+                deptname: result.dept ? result.dept.deptname : "",
+                Dep_head: result.dept
+            }));
+            return {
+                ...state,
+                emp_data: newData,
+                isLoading: false,
+                pages: action.payload.pages
+            }
         default:
             return state;
     }

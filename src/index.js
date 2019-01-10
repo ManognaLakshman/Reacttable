@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
+import thunk from 'redux-thunk';
 import reducerForm from "./store/reducers/reducer";
 import reducerDepSearch from "./store/reducers/reducerDepSearch";
 import employeeReducer from "./store/reducers/employeeReducer";
@@ -30,7 +31,7 @@ const fetchData = store => {
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
   window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({ latency: 0 }) : compose;
 
-const store = createStore(rootReducer, composeEnhancers(applyMiddleware(fetchData)));
+const store = createStore(rootReducer, composeEnhancers(applyMiddleware(fetchData, thunk)));
 
 const app = (
   <Provider store={store}>

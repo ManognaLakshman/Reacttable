@@ -2,7 +2,7 @@ import React from "react";
 import "./index.css";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
-import axios from "axios";
+//import axios from "axios";
 import debounce from "lodash/debounce";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -60,7 +60,7 @@ class Employee extends React.Component {
     return defaultValue;
   };
 
-  fetchGridData = debounce(async (state, instance) => {
+  fetchGridData = debounce((state, instance) => {
     let search = null;
     const colTypeMapping = state.allDecoratedColumns.reduce(
       (accumulator, currentValue) => {
@@ -98,26 +98,8 @@ class Employee extends React.Component {
 
     this.props.onLoadData();
 
-    const json = await axios.get(
-      "https://genericspringrest.herokuapp.com/employee",
-      { params }
-    );
-
-    const newData = json.data.content.map(result => ({
-      id: result.id,
-      name: result.name,
-      skill: result.skill,
-      salary: result.salary,
-      grade: result.grade,
-      city: result.city,
-      country: result.country,
-      doj: result.doj,
-      desg: result.desg,
-      deptname: result.dept ? result.dept.deptname : "",
-      Dep_head: result.dept
-    }));
-
-    this.props.onFetchingData(newData, json.data.totalPages);
+    this.props.onApiCall(params);
+    console.log('after api call');
   }, 500);
 
   render() {
@@ -385,10 +367,10 @@ const mapDispatchToProps = dispatch => {
   return {
     onDateChange: (column, event) => dispatch(actionCreators.date_change(column, event)),
     onFilterChange: (column, event) => dispatch(actionCreators.filter_change(column, event)),
-    onFetchingData: (newData, pages) => dispatch(actionCreators.fetch_employee(newData, pages)),
     onLoadData: () => dispatch(actionCreators.load_employee()),
     onDeleteFilter: (column) => dispatch(actionCreators.delete_filter_emp(column)),
-    onEmployeeUnmount: () => dispatch(actionCreators.employee_unmount())
+    onEmployeeUnmount: () => dispatch(actionCreators.employee_unmount()),
+    onApiCall: (params) => dispatch(actionCreators.axiosCall(params))
   }
 }
 
