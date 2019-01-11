@@ -10,6 +10,10 @@ import * as actionCreators from './store/actions/actions';
 
 class DepSearch extends React.Component {
 
+    componentWillUnmount() {
+        this.props.onDepartmentUnmount();
+    }
+
     fetchGridData = debounce(async (state, instance) => {
         let search = "";
         const colTypeMapping = state.allDecoratedColumns.reduce(
@@ -183,6 +187,7 @@ const mapDispatchToProps = dispatch => {
         onHandleFilter: (event, column) => dispatch(actionCreators.handle_filters(event, column)),
         onDeleteFilter: (column) => dispatch(actionCreators.delete_filter(column)),
         onLoadChange: () => dispatch(actionCreators.load_change()),
+        onDepartmentUnmount: () => dispatch(actionCreators.department_unmount()),
         onAxiosCall: (params) => dispatch(actionCreators.axiosCallDep(params))
     }
 }
