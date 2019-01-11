@@ -27,13 +27,6 @@ const reducer = (state = initialState, action) => {
                     [action.payload.identifier]: action.payload.value
                 }
             }
-        case actionTypes.FETCH_EMPLOYEE:
-            return {
-                ...state,
-                emp_data: action.payload.empData,
-                isLoading: false,
-                pages: action.payload.pages
-            }
         case actionTypes.LOAD_EMPLOYEE:
             return {
                 ...state,
@@ -48,7 +41,6 @@ const reducer = (state = initialState, action) => {
                 ...initialState
             }
         case actionTypes.API_CALL:
-            console.log('in api_call action');
             const newData = action.payload.newData.data.content.map(result => ({
                 id: result.id,
                 name: result.name,

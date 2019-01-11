@@ -2,7 +2,6 @@ import React from "react";
 import "./index.css";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
-//import axios from "axios";
 import debounce from "lodash/debounce";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -95,11 +94,8 @@ class Employee extends React.Component {
         : "id",
       search
     };
-
     this.props.onLoadData();
-
     this.props.onApiCall(params);
-    console.log('after api call');
   }, 500);
 
   render() {

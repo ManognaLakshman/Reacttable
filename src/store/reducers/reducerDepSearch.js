@@ -42,6 +42,20 @@ const reducer = (state = initialState, action) => {
             return {
                 ...initialState
             }
+
+        case actionTypes.API_CALL_DEP:
+            const newData = action.payload.newData.data.content.map(result => ({
+                deptid: result.deptid,
+                deptname: result.deptname,
+                depthead: result.depthead ? result.depthead.name : ""
+            }));
+            return {
+                ...state,
+                dep_data: newData,
+                isLoading: action.payload.isLoading,
+                pages: action.payload.pages
+            }
+
         default:
             return state;
     }

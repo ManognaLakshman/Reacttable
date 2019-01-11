@@ -11,12 +11,12 @@ export const LOAD_CHANGE = 'LOAD_CHANGE';
 export const DELETE_FILTER = 'DELETE_FILTER';
 export const DATE_CHANGE = 'DATE_CHANGE';
 export const FILTER_CHANGE = 'FILTER_CHANGE';
-export const FETCH_EMPLOYEE = 'FETCH_EMPLOYEE';
 export const LOAD_EMPLOYEE = 'LOAD_EMPLOYEE';
 export const DELETE_FILTER_EMP = 'DELETE_FILTER_EMP';
 export const EMPLOYEE_UNMOUNT = 'EMPLOYEE_UNMOUNT';
 export const DEPARTMENT_UNMOUNT = 'DEPARTMENT_UNMOUNT';
 export const API_CALL = 'API_CALL';
+export const API_CALL_DEP = 'API_CALL_DEP';
 
 export const handlechange = (event) => {
     return {
@@ -125,6 +125,22 @@ export const axiosCall = (params) => async (dispatch, getState) => {
         );
         dispatch({
             type: API_CALL,
+            payload: { newData: request, isLoading: false, pages: request.data.totalPages }
+        })
+    }
+    catch (error) {
+        return error;
+    }
+}
+
+export const axiosCallDep = (params) => async (dispatch, getState) => {
+    try {
+        const request = await axios.get(
+            "https://genericspringrest.herokuapp.com/department",
+            { params: params }
+        );
+        dispatch({
+            type: API_CALL_DEP,
             payload: { newData: request, isLoading: false, pages: request.data.totalPages }
         })
     }

@@ -1,7 +1,6 @@
 import React from "react";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
-import axios from "axios";
 import "./index.css";
 import debounce from "lodash/debounce";
 import Pagination from "./Pagination";
@@ -51,19 +50,7 @@ class Department extends React.Component {
     };
 
     this.props.onLoadChange();
-
-    const json = await axios.get(
-      "https://genericspringrest.herokuapp.com/department",
-      { params }
-    );
-
-    const newData = json.data.content.map(result => ({
-      deptid: result.deptid,
-      deptname: result.deptname,
-      depthead: result.depthead ? result.depthead.name : ""
-    }));
-
-    this.props.onFetchingData(newData, json.data.totalPages);
+    this.props.onAxiosCall(params);
   }, 500);
 
 
@@ -181,9 +168,9 @@ const mapDispatchToProps = dispatch => {
   return {
     onHandleFilter: (event, column) => dispatch(actionCreators.handle_filters(event, column)),
     onDeleteFilter: (column) => dispatch(actionCreators.delete_filter(column)),
-    onFetchingData: (newData, pages) => dispatch(actionCreators.fetch_data(newData, pages)),
     onLoadChange: () => dispatch(actionCreators.load_change()),
-    onDepartmentUnmount: () => dispatch(actionCreators.department_unmount())
+    onDepartmentUnmount: () => dispatch(actionCreators.department_unmount()),
+    onAxiosCall: (params) => dispatch(actionCreators.axiosCallDep(params))
   }
 }
 
