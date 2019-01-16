@@ -2,35 +2,25 @@ import React from "react";
 import "./index.css";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
-import axios from "axios";
 import debounce from "lodash/debounce";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import moment from "moment";
 import Pagination from "./Pagination";
+import { connect } from "react-redux";
+import * as actionCreators from './store/actions/actions';
 
 class Employee extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      emp_data: [],
-      dep_data: {},
-      isLoading: false,
-      filterState: {},
-      pages: -1
-    };
+
+  componentWillUnmount() {
+    this.props.onEmployeeUnmount();
   }
 
   handleChange = (onChange, column) => {
     return event => {
-      const identifier = column.id;
       const type = column.type;
       if (type === "date") {
         if (event._d === undefined || event._d === null || event._d === "") {
-          delete this.state.filterState[identifier];
-          this.setState({
-            ...this.state.filterState
-          });
+          this.props.onDeleteFilter(column);
           onChange();
           return;
         }
@@ -40,38 +30,23 @@ class Employee extends React.Component {
           event.target.value === null ||
           event.target.value === ""
         ) {
-          delete this.state.filterState[identifier];
-          this.setState({
-            ...this.state.filterState
-          });
+          this.props.onDeleteFilter(column);
           onChange();
           return;
         }
       }
 
       if (type === "date") {
-        this.setState({
-          filterState: {
-            ...this.state.filterState,
-            [identifier]: moment(event._d).format("YYYY-MM-DD")
-          }
-        });
+        this.props.onDateChange(column, event);
       } else {
-        const filterState = {
-          ...this.state.filterState,
-          [identifier]: event.target.value
-        };
-        this.setState({
-          filterState
-        });
-        console.log(filterState);
+        this.props.onFilterChange(column, event);
       }
       onChange();
     };
   };
 
   getFilterValueFromState = (identifier, defaultValue = "") => {
-    const filterState = this.state.filterState;
+    const filterState = this.props.filterState;
     if (!filterState) {
       return defaultValue;
     }
@@ -84,17 +59,7 @@ class Employee extends React.Component {
     return defaultValue;
   };
 
-  fetchDepartmentDetails = async deptId => {
-    if (!this.state.dep_data[deptId]) {
-      const json = await axios.get(deptId);
-      const deptData = json.data;
-      this.setState({
-        dep_data: { ...this.state.dep_data, [deptId]: deptData }
-      });
-    }
-  };
-
-  fetchGridData = debounce(async (state, instance) => {
+  fetchGridData = debounce((state, instance) => {
     let search = null;
     const colTypeMapping = state.allDecoratedColumns.reduce(
       (accumulator, currentValue) => {
@@ -102,7 +67,7 @@ class Employee extends React.Component {
       },
       {}
     );
-    const filterKeys = Object.keys(this.state.filterState);
+    const filterKeys = Object.keys(this.props.filterState);
     if (filterKeys.length !== 0) {
       search = "( ";
       search += filterKeys
@@ -111,8 +76,8 @@ class Employee extends React.Component {
           if (colTypeMapping[key] && colTypeMapping[key] === "text") {
             suffix = "*";
           }
-          return this.state.filterState[key]
-            ? key + ":" + this.state.filterState[key] + suffix
+          return this.props.filterState[key]
+            ? key + ":" + this.props.filterState[key] + suffix
             : "";
         })
         .join(" and ");
@@ -129,40 +94,14 @@ class Employee extends React.Component {
         : "id",
       search
     };
-
-    this.setState({
-      isLoading: true
-    });
-
-    const json = await axios.get(
-      "https://genericspringrest.herokuapp.com/employee",
-      { params }
-    );
-
-    const newData = json.data.content.map(result => ({
-      id: result.id,
-      name: result.name,
-      skill: result.skill,
-      salary: result.salary,
-      grade: result.grade,
-      city: result.city,
-      country: result.country,
-      doj: result.doj,
-      desg: result.desg,
-      deptname: result.dept ? result.dept.deptname : "",
-      Dep_head: result.dept
-    }));
-
-    this.setState({
-      ...this.state,
-      emp_data: newData,
-      isLoading: false,
-      pages: json.data.totalPages
-    });
+    this.props.onLoadData();
+    this.props.onApiCall(params);
   }, 500);
 
   render() {
-    const { emp_data, isLoading, pages } = this.state;
+    const emp_data = this.props.emp_data;
+    const isLoading = this.props.isLoading;
+    const pages = this.props.pages;
     const content = (
       <div>
         <ReactTable
@@ -191,7 +130,7 @@ class Employee extends React.Component {
                   size="8"
                   onChange={this.handleChange(onChange, column)}
                   value={
-                    this.state.filterState.id ? this.state.filterState.id : ""
+                    this.props.filterState.id ? this.props.filterState.id : ""
                   }
                 />
               )
@@ -206,8 +145,8 @@ class Employee extends React.Component {
                   size="8"
                   onChange={this.handleChange(onChange, column)}
                   value={
-                    this.state.filterState.name
-                      ? this.state.filterState.name
+                    this.props.filterState.name
+                      ? this.props.filterState.name
                       : ""
                   }
                 />
@@ -224,8 +163,8 @@ class Employee extends React.Component {
                   size="8"
                   onChange={this.handleChange(onChange, column)}
                   value={
-                    this.state.filterState.skill
-                      ? this.state.filterState.skill
+                    this.props.filterState.skill
+                      ? this.props.filterState.skill
                       : ""
                   }
                 />
@@ -239,7 +178,7 @@ class Employee extends React.Component {
                 <DatePicker
                   placeholderText="Select a date"
                   value={
-                    this.state.filterState.doj ? this.state.filterState.doj : ""
+                    this.props.filterState.doj ? this.props.filterState.doj : ""
                   }
                   onChange={this.handleChange(onChange, column)}
                 />
@@ -276,8 +215,8 @@ class Employee extends React.Component {
                   size="8"
                   onChange={this.handleChange(onChange, column)}
                   value={
-                    this.state.filterState.grade
-                      ? this.state.filterState.grade
+                    this.props.filterState.grade
+                      ? this.props.filterState.grade
                       : ""
                   }
                 />
@@ -294,8 +233,8 @@ class Employee extends React.Component {
                   size="8"
                   onChange={this.handleChange(onChange, column)}
                   value={
-                    this.state.filterState["dept.deptname"]
-                      ? this.state.filterState["dept.deptname"]
+                    this.props.filterState["dept.deptname"]
+                      ? this.props.filterState["dept.deptname"]
                       : ""
                   }
                 />
@@ -311,8 +250,8 @@ class Employee extends React.Component {
                   size="8"
                   onChange={this.handleChange(onChange, column)}
                   value={
-                    this.state.filterState.salary
-                      ? this.state.filterState.salary
+                    this.props.filterState.salary
+                      ? this.props.filterState.salary
                       : ""
                   }
                 />
@@ -328,8 +267,8 @@ class Employee extends React.Component {
                   size="8"
                   onChange={this.handleChange(onChange, column)}
                   value={
-                    this.state.filterState.city
-                      ? this.state.filterState.city
+                    this.props.filterState.city
+                      ? this.props.filterState.city
                       : ""
                   }
                 />
@@ -345,8 +284,8 @@ class Employee extends React.Component {
                   size="8"
                   onChange={this.handleChange(onChange, column)}
                   value={
-                    this.state.filterState.country
-                      ? this.state.filterState.country
+                    this.props.filterState.country
+                      ? this.props.filterState.country
                       : ""
                   }
                 />
@@ -371,7 +310,6 @@ class Employee extends React.Component {
             };
           }}
           SubComponent={rows => {
-            console.log(rows);
             const dep = rows.original.Dep_head
               ? rows.original.Dep_head.depthead
               : "";
@@ -412,4 +350,24 @@ class Employee extends React.Component {
   }
 }
 
-export default Employee;
+const mapStateToProps = state => {
+  return {
+    emp_data: state.emp.emp_data,
+    isLoading: state.emp.isLoading,
+    filterState: state.emp.filterState,
+    pages: state.emp.pages
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    onDateChange: (column, event) => dispatch(actionCreators.date_change(column, event)),
+    onFilterChange: (column, event) => dispatch(actionCreators.filter_change(column, event)),
+    onLoadData: () => dispatch(actionCreators.load_employee()),
+    onDeleteFilter: (column) => dispatch(actionCreators.delete_filter_emp(column)),
+    onEmployeeUnmount: () => dispatch(actionCreators.employee_unmount()),
+    onApiCall: (params) => dispatch(actionCreators.axiosCall(params))
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Employee);

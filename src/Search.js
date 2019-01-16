@@ -2,26 +2,31 @@ import React from "react";
 import "./index.css";
 import DepartmentSearch from "./Department_search";
 import DepSearch from "./DepSearch";
+import { connect } from "react-redux";
+import * as actionCreators from './store/actions/actions';
 
 class Search extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            searchDetails: {},
-            flag: false
+            checkFlag: false
         }
     }
 
+    componentWillMount() {
+        this.props.onSearch();
+        this.props.onRefresh();
+    }
     handleDepartmentSearch = (data) => {
         this.setState({
-            searchDetails: data,
-            flag: true
-        })
+            checkFlag: true
+        }, () => this.props.onHandleDepSearch(data));
+
     }
 
     manageComponents = (flag) => {
-        if (flag) {
-            return <DepSearch searchDetails={this.state.searchDetails} />
+        if (flag && this.state.checkFlag) {
+            return <DepSearch searchDetails={this.props.SeaDet} />
         }
         else {
             return <DepartmentSearch handleDepartmentSearch={this.handleDepartmentSearch} />
@@ -32,10 +37,26 @@ class Search extends React.Component {
     render() {
         return (
             <div>
-                {this.manageComponents(this.state.flag)}
+                {this.manageComponents(this.props.flag1)}
             </div>
         )
     }
 }
 
-export default Search;
+const mapStateToProps = state => {
+    return {
+        depDet: state.form.dep_details,
+        SeaDet: state.form.searchDetails,
+        flag1: state.form.flag,
+    };
+};
+
+const mapDispatchToProps = dispatch => {
+    return {
+        onSearch: () => dispatch(actionCreators.handlenewsearch()),
+        onHandleDepSearch: (data) => dispatch(actionCreators.handledepsearch(data)),
+        onRefresh: () => dispatch(actionCreators.refresh_table())
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Search);

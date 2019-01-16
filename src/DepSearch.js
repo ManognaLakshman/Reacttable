@@ -2,20 +2,16 @@ import React from "react";
 import "./index.css";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
-import axios from "axios";
 import "./index.css";
 import debounce from "lodash/debounce";
 import Pagination from "./Pagination";
+import { connect } from "react-redux";
+import * as actionCreators from './store/actions/actions';
 
 class DepSearch extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            dep_data: [],
-            isLoading: false,
-            filterState: {},
-            pages: -1
-        };
+
+    componentWillUnmount() {
+        this.props.onDepartmentUnmount();
     }
 
     fetchGridData = debounce(async (state, instance) => {
@@ -28,15 +24,16 @@ class DepSearch extends React.Component {
         );
 
         let searchParams = [];
+
         if (Object.keys(this.props.searchDetails).length > 0) {
             let search1 = "( ";
             search1 += this.applyFilterCriteria(this.props.searchDetails, colTypeMapping, " or ");
             search1 += " )";
             searchParams.push(search1);
         }
-        if (Object.keys(this.state.filterState).length > 0) {
+        if (Object.keys(this.props.filterState).length > 0) {
             let search2 = "( ";
-            search2 += this.applyFilterCriteria(this.state.filterState, colTypeMapping, " and ");
+            search2 += this.applyFilterCriteria(this.props.filterState, colTypeMapping, " and ");
             search2 += " )"
             searchParams.push(search2);
         }
@@ -52,79 +49,49 @@ class DepSearch extends React.Component {
             search
         };
 
-        this.setState({
-            isLoading: true
-        });
-
-        const json = await axios.get(
-            "https://genericspringrest.herokuapp.com/department",
-            { params }
-        );
-
-        const newData = json.data.content.map(result => ({
-            deptid: result.deptid,
-            deptname: result.deptname,
-            depthead: result.depthead ? result.depthead.name : ""
-        }));
-
-        this.setState({
-            ...this.state,
-            dep_data: newData,
-            isLoading: false,
-            pages: json.data.totalPages
-        });
+        this.props.onLoadChange();
+        this.props.onAxiosCall(params);
     }, 500);
 
     handleChange = (onChange, column) => {
         return event => {
-            const identifier = column.id;
             if (
                 event.target.value === undefined ||
                 event.target.value === null ||
                 event.target.value === ""
             ) {
-                delete this.state.filterState[identifier];
-                this.setState({
-                    ...this.state.filterState
-                });
+                this.props.onDeleteFilter(column);
                 onChange();
                 return;
             } else {
-                const filterState = {
-                    ...this.state.filterState,
-                    [identifier]: event.target.value
-                };
-                this.setState({
-                    filterState
-                });
+                this.props.onHandleFilter(event, column);
             }
             onChange();
-        };
+        }
     };
-
 
     applyFilterCriteria(filterData, colTypeMapping, joinType) {
         const filterKeys = Object.keys(filterData);
         let search = "";
         if (filterKeys.length !== 0) {
-            search += filterKeys
-                .map(key => {
-                    let suffix = "";
-                    if (colTypeMapping[key] && colTypeMapping[key] === "text") {
-                        suffix = "*";
-                    }
-                    return filterData[key]
-                        ? key + ":" + filterData[key] + suffix
-                        : "";
-                })
+            search += filterKeys.map(key => {
+                let suffix = "";
+                if (colTypeMapping[key] && colTypeMapping[key] === "text") {
+                    suffix = "*";
+                }
+                return filterData[key]
+                    ? key + ":" + filterData[key] + suffix
+                    : "";
+            })
                 .join(joinType);
-            ;
         }
         return search;
     }
 
     render() {
-        const { dep_data, isLoading, pages } = this.state;
+        const dep_data = this.props.data;
+        const isLoading = this.props.loading;
+        const pages = this.props.pages;
         return (
             <div>
                 <ReactTable
@@ -150,8 +117,8 @@ class DepSearch extends React.Component {
                                     size="8"
                                     onChange={this.handleChange(onChange, column)}
                                     value={
-                                        this.state.filterState.deptid
-                                            ? this.state.filterState.deptid
+                                        this.props.filterState.deptid
+                                            ? this.props.filterState.deptid
                                             : ""
                                     }
                                 />
@@ -167,8 +134,8 @@ class DepSearch extends React.Component {
                                     size="8"
                                     onChange={this.handleChange(onChange, column)}
                                     value={
-                                        this.state.filterState.deptname
-                                            ? this.state.filterState.deptname
+                                        this.props.filterState.deptname
+                                            ? this.props.filterState.deptname
                                             : ""
                                     }
                                 />
@@ -183,8 +150,8 @@ class DepSearch extends React.Component {
                                 <input
                                     type="text"
                                     value={
-                                        this.state.filterState["depthead.name"]
-                                            ? this.state.filterState["depthead.name"]
+                                        this.props.filterState["depthead.name"]
+                                            ? this.props.filterState["depthead.name"]
                                             : ""
                                     }
                                     onChange={this.handleChange(onChange, column)}
@@ -206,4 +173,23 @@ class DepSearch extends React.Component {
     }
 }
 
-export default DepSearch;
+const mapStateToProps = state => {
+    return {
+        data: state.depSearch.dep_data,
+        loading: state.depSearch.isLoading,
+        filterState: state.depSearch.filterState,
+        pages: state.depSearch.pages
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        onHandleFilter: (event, column) => dispatch(actionCreators.handle_filters(event, column)),
+        onDeleteFilter: (column) => dispatch(actionCreators.delete_filter(column)),
+        onLoadChange: () => dispatch(actionCreators.load_change()),
+        onDepartmentUnmount: () => dispatch(actionCreators.department_unmount()),
+        onAxiosCall: (params) => dispatch(actionCreators.axiosCallDep(params))
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(DepSearch);
