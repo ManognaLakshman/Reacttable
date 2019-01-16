@@ -13,7 +13,8 @@ class App extends React.Component {
       userDetails: {},
       isLoggedIn: false,
       userId: null,
-      userTextBoxValue: ""
+      userTextBoxValue: "",
+      Role: null
     };
   }
 
@@ -48,7 +49,7 @@ class App extends React.Component {
   }
 
   LogOutUser(event) {
-    console.log("User logged out");
+    //console.log("User logged out");
     sessionStorage.clear();
     window.location.href = "/";
   }
@@ -60,13 +61,7 @@ class App extends React.Component {
       view = (
         <div>
           <p className="userNameView">{username} </p>
-          <input
-            type="button"
-            value="LogOut"
-            onClick={event => this.LogOutUser(event)}
-          />
           <br />
-
           <header>
             <nav>
               <ul>
@@ -97,6 +92,12 @@ class App extends React.Component {
             <Route path="/Department" component={() => <Department />} />
             <Route path="/Search" component={() => <Search />} />
           </Switch>
+          <br />
+          <input
+            type="button"
+            value="LogOut"
+            onClick={event => this.LogOutUser(event)}
+          />
         </div>
       );
     } else {
