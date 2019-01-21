@@ -170,7 +170,7 @@ const mapDispatchToProps = dispatch => {
     onDeleteFilter: (column) => dispatch(actionCreators.delete_filter(column)),
     onLoadChange: () => dispatch(actionCreators.load_change()),
     onDepartmentUnmount: () => dispatch(actionCreators.department_unmount()),
-    onAxiosCall: (params) => dispatch(actionCreators.axiosCallDep(params))
+    onAxiosCall: (params) => dispatch(actionCreators.axiosCallDepSaga(params))
   }
 }
 

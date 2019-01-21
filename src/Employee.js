@@ -366,7 +366,7 @@ const mapDispatchToProps = dispatch => {
     onLoadData: () => dispatch(actionCreators.load_employee()),
     onDeleteFilter: (column) => dispatch(actionCreators.delete_filter_emp(column)),
     onEmployeeUnmount: () => dispatch(actionCreators.employee_unmount()),
-    onApiCall: (params) => dispatch(actionCreators.axiosCall(params))
+    onApiCall: (params) => dispatch(actionCreators.axiosCallSaga(params))
   }
 }
 

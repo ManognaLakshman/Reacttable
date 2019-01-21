@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 export const HANDLECHANGE = 'HANDLECHANGE';
 export const HANDLEDELETE = 'HANDLEDELETE';
 export const HANDLENEWSEARCH = 'HANDLENEWSEARCH';
@@ -17,6 +15,8 @@ export const EMPLOYEE_UNMOUNT = 'EMPLOYEE_UNMOUNT';
 export const DEPARTMENT_UNMOUNT = 'DEPARTMENT_UNMOUNT';
 export const API_CALL = 'API_CALL';
 export const API_CALL_DEP = 'API_CALL_DEP';
+export const API_CALL_SAGA = 'API_CALL_SAGA';
+export const API_CALL_DEP_SAGA = 'API_CALL_DEP_SAGA';
 
 export const handlechange = (event) => {
     return {
@@ -117,35 +117,19 @@ export const employee_unmount = () => {
     }
 }
 
-export const axiosCall = (params) => async (dispatch, getState) => {
-    try {
-        const request = await axios.get(
-            "https://genericspringrest.herokuapp.com/employee",
-            { params: params }
-        );
-        dispatch({
-            type: API_CALL,
-            payload: { newData: request, isLoading: false, pages: request.data.totalPages }
-        })
-    }
-    catch (error) {
-        return error;
+export const axiosCallSaga = params => {
+    return {
+        type: 'API_CALL',
+        payload: params
     }
 }
 
-export const axiosCallDep = (params) => async (dispatch, getState) => {
-    try {
-        const request = await axios.get(
-            "https://genericspringrest.herokuapp.com/department",
-            { params: params }
-        );
-        dispatch({
-            type: API_CALL_DEP,
-            payload: { newData: request, isLoading: false, pages: request.data.totalPages }
-        })
-    }
-    catch (error) {
-        return error;
+export const axiosCallDepSaga = params => {
+    return {
+        type: 'API_CALL_DEP',
+        payload: params
     }
 }
+
+
 
