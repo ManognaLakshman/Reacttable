@@ -24,8 +24,6 @@ class App extends React.Component {
       const userDetails = await Axios.get(
         `http://localhost:8080/user/getcurrentuserinfo`
       );
-      // /data/${userId}.json
-      // localhost:8080/SM-USER=${userId}
       this.setState({
         userDetails: userDetails.data,
         isLoggedIn: true,
