@@ -20,7 +20,12 @@ class App extends React.Component {
 
   async loadUserDetails(userId) {
     try {
-      const userDetails = await Axios.get(`/data/${userId}.json`);
+      Axios.defaults.headers.common["SM_USER"] = userId;
+      const userDetails = await Axios.get(
+        `http://localhost:8080/user/getcurrentuserinfo`
+      );
+      // /data/${userId}.json
+      // localhost:8080/SM-USER=${userId}
       this.setState({
         userDetails: userDetails.data,
         isLoggedIn: true,
