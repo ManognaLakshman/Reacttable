@@ -40,7 +40,7 @@ const reducer = (state = initialState, action) => {
             return {
                 ...initialState
             }
-        case actionTypes.API_CALL:
+        case actionTypes.API_CALL_SAGA:
             const newData = action.payload.newData.data.content.map(result => ({
                 id: result.id,
                 name: result.name,
