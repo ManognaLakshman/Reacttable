@@ -14,7 +14,7 @@ class App extends React.Component {
       isLoggedIn: false,
       userId: null,
       userTextBoxValue: "",
-      Role: null
+      Role: []
     };
   }
 
@@ -22,13 +22,15 @@ class App extends React.Component {
     try {
       Axios.defaults.headers.common["SM_USER"] = userId;
       const userDetails = await Axios.get(
-        `http://localhost:8080/user/getcurrentuserinfo`
+        "https://genericspringrest.herokuapp.com/user/getcurrentuserinfo"
       );
       this.setState({
         userDetails: userDetails.data,
         isLoggedIn: true,
-        userId: userId
+        userId: userId,
+        Role: userDetails.roles
       });
+      console.log(this.state);
       sessionStorage.setItem("userid", userId);
     } catch {
       alert("Not Authorized");
