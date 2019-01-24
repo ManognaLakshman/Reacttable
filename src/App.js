@@ -20,10 +20,8 @@ class App extends React.Component {
 
   async loadUserDetails(userId) {
     try {
-      Axios.defaults.headers.common["SM_USER"] = userId;
-      const userDetails = await Axios.get(
-        `http://localhost:8080/user/getcurrentuserinfo`
-      );
+      //Axios.defaults.headers.common["SM_USER"] = userId;
+      const userDetails = await Axios.get(`/${userId}.json`);
       this.setState({
         userDetails: userDetails.data,
         isLoggedIn: true,
@@ -35,7 +33,7 @@ class App extends React.Component {
     }
   }
   async componentDidMount() {
-    const savedUserId = sessionStorage.getItem("userid");
+    const savedUserId = sessionStorage.getItem("userId");
     if (savedUserId) {
       this.loadUserDetails(savedUserId);
     }
@@ -91,6 +89,7 @@ class App extends React.Component {
             </nav>
           </header>
           <Switch>
+
             <Route path="/" exact component={Employee} />
             <Route path="/Department" component={() => <Department />} />
             <Route path="/Search" component={() => <Search />} />
