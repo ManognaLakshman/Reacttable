@@ -7,10 +7,11 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Pagination from "./Pagination";
 import { connect } from "react-redux";
-import * as actionCreators from './store/actions/actions';
+import * as actionCreators from "./store/actions/actions";
+
+import { withRouter } from "react-router-dom";
 
 class Employee extends React.Component {
-
   componentWillUnmount() {
     this.props.onEmployeeUnmount();
   }
@@ -89,8 +90,8 @@ class Employee extends React.Component {
       size: state.pageSize,
       sort: state.sorted["0"]
         ? state.sorted["0"].id +
-        "," +
-        (state.sorted["0"].desc === false ? "desc" : "asc")
+          "," +
+          (state.sorted["0"].desc === false ? "desc" : "asc")
         : "id",
       search
     };
@@ -356,18 +357,28 @@ const mapStateToProps = state => {
     isLoading: state.emp.isLoading,
     filterState: state.emp.filterState,
     pages: state.emp.pages
-  }
-}
+  };
+};
 
 const mapDispatchToProps = dispatch => {
   return {
-    onDateChange: (column, event) => dispatch(actionCreators.date_change(column, event)),
-    onFilterChange: (column, event) => dispatch(actionCreators.filter_change(column, event)),
+    onDateChange: (column, event) =>
+      dispatch(actionCreators.date_change(column, event)),
+    onFilterChange: (column, event) =>
+      dispatch(actionCreators.filter_change(column, event)),
     onLoadData: () => dispatch(actionCreators.load_employee()),
-    onDeleteFilter: (column) => dispatch(actionCreators.delete_filter_emp(column)),
+    onDeleteFilter: column =>
+      dispatch(actionCreators.delete_filter_emp(column)),
     onEmployeeUnmount: () => dispatch(actionCreators.employee_unmount()),
-    onApiCall: (params) => dispatch(actionCreators.axiosCallSaga(params))
-  }
-}
+    onApiCall: params => dispatch(actionCreators.axiosCallSaga(params))
+  };
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(Employee);
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(Employee)
+);
+
+//export default connect(mapStateToProps, mapDispatchToProps)(Employee);

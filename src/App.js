@@ -6,10 +6,12 @@ import Search from "./Search";
 import "./App.css";
 import Axios from "axios";
 import { connect } from "react-redux";
-import * as actionCreators from './store/actions/actions';
+import * as actionCreators from "./store/actions/actions";
+
+import { BrowserRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 
 class App extends React.Component {
-
   loadUserDetails = userId => {
     try {
       Axios.defaults.headers.common["SM_USER"] = userId;
@@ -18,7 +20,7 @@ class App extends React.Component {
     } catch {
       alert("Not Authorized");
     }
-  }
+  };
 
   componentDidMount() {
     const savedUserId = sessionStorage.getItem("userId");
@@ -29,18 +31,18 @@ class App extends React.Component {
 
   captureUserId = event => {
     this.props.onChangeUserId(event);
-  }
+  };
 
   handleLogin = event => {
     event.preventDefault();
     const userId = this.props.userTextBoxValue;
     this.loadUserDetails(userId);
-  }
+  };
 
   LogOutUser = () => {
     sessionStorage.clear();
     window.location.href = "/";
-  }
+  };
 
   render() {
     let username = `UserName: ${this.props.userDetails.name}`;
@@ -59,7 +61,7 @@ class App extends React.Component {
                   </Link>
                 </li>
                 <li>
-                  <Link to="Department">
+                  <Link to="/Department">
                     <p>Department</p>
                   </Link>
                 </li>
@@ -76,7 +78,6 @@ class App extends React.Component {
             </nav>
           </header>
           <Switch>
-
             <Route path="/" exact component={Employee} />
             <Route path="/Department" component={() => <Department />} />
             <Route path="/Search" component={() => <Search />} />
@@ -117,14 +118,19 @@ const mapStateToProps = state => {
     isLoggedIn: state.login.isLoggedIn,
     userId: state.login.userId,
     userTextBoxValue: state.login.userTextBoxValue
-  }
-}
+  };
+};
 
 const mapDispatchToProps = dispatch => {
   return {
-    setUserDetails: (userId) => dispatch(actionCreators.set_user_details(userId)),
+    setUserDetails: userId => dispatch(actionCreators.set_user_details(userId)),
     onChangeUserId: event => dispatch(actionCreators.change_userid(event))
-  }
-}
+  };
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(App)
+);
