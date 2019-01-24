@@ -10,13 +10,10 @@ import * as actionCreators from './store/actions/actions';
 
 class App extends React.Component {
 
-  async loadUserDetails(userId) {
+  loadUserDetails = userId => {
     try {
       Axios.defaults.headers.common["SM_USER"] = userId;
-      const userDetails = await Axios.get(
-        "https://genericspringrest.herokuapp.com/user/getcurrentuserinfo"
-      );
-      this.props.setUserDetails(userDetails, userId);
+      this.props.setUserDetails(userId);
       sessionStorage.setItem("userid", userId);
     } catch {
       alert("Not Authorized");
@@ -125,7 +122,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    setUserDetails: (userDetails, userId) => dispatch(actionCreators.set_user_details(userDetails, userId)),
+    setUserDetails: (userId) => dispatch(actionCreators.set_user_details(userId)),
     onChangeUserId: event => dispatch(actionCreators.change_userid(event))
   }
 }

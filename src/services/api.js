@@ -11,3 +11,7 @@ export const fetchDepData = params => {
         { params: params });
 }
 
+export const fetchUserDetails=()=>{
+    return axios.get("https://genericspringrest.herokuapp.com/user/getcurrentuserinfo");
+}
+

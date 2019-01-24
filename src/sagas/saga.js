@@ -18,10 +18,19 @@ function* workerSagaDep(action) {
     })
 }
 
+function* workerSagaApp(action) {
+    const userDetails = yield call(api.fetchUserDetails);
+    yield put({
+        type: actionTypes.FETCH_USERDETAILS,
+        payload: { userDetails: userDetails, userId: action.payload }
+    })
+}
+
 //watcher saga
 function* rootSaga() {
     yield takeEvery('API_CALL', workerSagaEmp);
     yield takeEvery('API_CALL_DEP', workerSagaDep);
+    yield takeEvery('SET_USER_DETAILS', workerSagaApp);
 }
 
 export default rootSaga;

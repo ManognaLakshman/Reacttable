@@ -19,6 +19,7 @@ export const API_CALL_SAGA = 'API_CALL_SAGA';
 export const API_CALL_DEP_SAGA = 'API_CALL_DEP_SAGA';
 export const SET_USER_DETAILS = 'SET_USER_DETAILS';
 export const CHANGE_USERID = 'CHANGE_USERID';
+export const FETCH_USERDETAILS = 'FETCH_USERDETAILS';
 
 export const handlechange = (event) => {
     return {
@@ -133,10 +134,10 @@ export const axiosCallDepSaga = params => {
     }
 }
 
-export const set_user_details = (userDetails, userId) => {
+export const set_user_details = (userId) => {
     return {
         type: 'SET_USER_DETAILS',
-        payload: { userDetails: userDetails, userId: userId }
+        payload: userId
     }
 }
 

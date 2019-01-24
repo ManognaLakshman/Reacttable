@@ -9,7 +9,7 @@ const initialState = {
 
 const reducer = (state = initialState, action) => {
     switch (action.type) {
-        case actionTypes.SET_USER_DETAILS:
+        case actionTypes.FETCH_USERDETAILS:
             return {
                 ...state,
                 userDetails: action.payload.userDetails.data,
