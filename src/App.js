@@ -5,60 +5,50 @@ import { Route, Switch, Link } from "react-router-dom";
 import Search from "./Search";
 import "./App.css";
 import Axios from "axios";
+import { connect } from "react-redux";
+import * as actionCreators from './store/actions/actions';
 
 class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      userDetails: {},
-      isLoggedIn: false,
-      userId: null,
-      userTextBoxValue: "",
-      Role: null
-    };
-  }
 
   async loadUserDetails(userId) {
     try {
-      //Axios.defaults.headers.common["SM_USER"] = userId;
-      const userDetails = await Axios.get(`/${userId}.json`);
-      this.setState({
-        userDetails: userDetails.data,
-        isLoggedIn: true,
-        userId: userId
-      });
+      Axios.defaults.headers.common["SM_USER"] = userId;
+      const userDetails = await Axios.get(
+        "https://genericspringrest.herokuapp.com/user/getcurrentuserinfo"
+      );
+      this.props.setUserDetails(userDetails, userId);
       sessionStorage.setItem("userid", userId);
     } catch {
       alert("Not Authorized");
     }
   }
-  async componentDidMount() {
+
+  componentDidMount() {
     const savedUserId = sessionStorage.getItem("userId");
     if (savedUserId) {
       this.loadUserDetails(savedUserId);
     }
   }
 
-  captureUserId(ev) {
-    this.setState({ userTextBoxValue: ev.target.value });
+  captureUserId = event => {
+    this.props.onChangeUserId(event);
   }
 
-  handleLogin(ev) {
-    ev.preventDefault();
-    const userId = this.state.userTextBoxValue;
+  handleLogin = event => {
+    event.preventDefault();
+    const userId = this.props.userTextBoxValue;
     this.loadUserDetails(userId);
   }
 
-  LogOutUser(event) {
-    //console.log("User logged out");
+  LogOutUser = () => {
     sessionStorage.clear();
     window.location.href = "/";
   }
 
   render() {
-    let username = `UserName: ${this.state.userDetails.name}`;
+    let username = `UserName: ${this.props.userDetails.name}`;
     let view;
-    if (this.state.isLoggedIn) {
+    if (this.props.isLoggedIn) {
       view = (
         <div>
           <p className="userNameView">{username} </p>
@@ -111,7 +101,7 @@ class App extends React.Component {
               maxLength="25"
               onChange={ev => this.captureUserId(ev)}
               placeholder="Username"
-              value={this.state.userTextBoxValue}
+              value={this.props.userTextBoxValue}
             />
             <br />
             <br />
@@ -123,4 +113,21 @@ class App extends React.Component {
     return <div>{view}</div>;
   }
 }
-export default App;
+
+const mapStateToProps = state => {
+  return {
+    userDetails: state.login.userDetails,
+    isLoggedIn: state.login.isLoggedIn,
+    userId: state.login.userId,
+    userTextBoxValue: state.login.userTextBoxValue
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    setUserDetails: (userDetails, userId) => dispatch(actionCreators.set_user_details(userDetails, userId)),
+    onChangeUserId: event => dispatch(actionCreators.change_userid(event))
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

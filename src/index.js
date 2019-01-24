@@ -3,7 +3,8 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
-import createSagaMiddleware from 'redux-saga'
+import createSagaMiddleware from 'redux-saga';
+import appReducer from './store/reducers/appReducer';
 import reducerForm from "./store/reducers/reducer";
 import reducerDepSearch from "./store/reducers/reducerDepSearch";
 import employeeReducer from "./store/reducers/employeeReducer";
@@ -15,7 +16,8 @@ import rootSaga from './sagas/saga';
 const rootReducer = combineReducers({
   form: reducerForm,
   depSearch: reducerDepSearch,
-  emp: employeeReducer
+  emp: employeeReducer,
+  login: appReducer
 })
 
 const fetchData = store => {
