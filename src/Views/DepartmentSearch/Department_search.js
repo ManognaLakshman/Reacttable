@@ -1,7 +1,7 @@
 import React from "react";
 import "../../index.css";
 import { connect } from "react-redux";
-import * as actionCreaters from '../../store/actions/actions';
+import * as actionCreaters from '../../actions/actions';
 
 
 class DepartmentSearch extends React.Component {

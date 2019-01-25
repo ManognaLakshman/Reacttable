@@ -1,6 +1,6 @@
 import { takeEvery, call, put } from "redux-saga/effects";
 import * as api from "../services/api";
-import * as actionTypes from "../store/actions/actions";
+import * as actionTypes from "../actions/actions";
 
 function* workerSagaEmp(action) {
   const empData = yield call(api.fetchEmpData, action.payload);

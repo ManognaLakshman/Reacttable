@@ -5,7 +5,7 @@ import "../../index.css";
 import debounce from "lodash/debounce";
 import Pagination from "../../Common/Components/Pagination";
 import { connect } from "react-redux";
-import * as actionCreators from "../../store/actions/actions";
+import * as actionCreators from "../../actions/actions";
 
 import { withRouter } from "react-router-dom";
 

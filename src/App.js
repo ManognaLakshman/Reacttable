@@ -6,7 +6,7 @@ import Search from "./Views/DepartmentSearch/Search";
 import "./App.css";
 import Axios from "axios";
 import { connect } from "react-redux";
-import * as actionCreators from "./store/actions/actions";
+import * as actionCreators from "./actions/actions";
 import { withRouter } from "react-router-dom";
 
 class App extends React.Component {
@@ -43,6 +43,7 @@ class App extends React.Component {
   };
 
   displayLinks = tabs => {
+    console.log(this.props.userDetails.roles.indexOf("Leadership"));
     const tabView = tabs.map(tabObj =>
       <li key={tabObj["id"]}>
         <Link to={tabObj["path"]}>
@@ -56,7 +57,8 @@ class App extends React.Component {
   render() {
     let username = `UserName: ${this.props.userDetails.name}`;
     let view;
-    let tabs = [
+    let tabs;
+    tabs = [
       {
         "id": "emp",
         "display": "Employee",

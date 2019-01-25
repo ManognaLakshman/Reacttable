@@ -7,7 +7,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Pagination from "../../Common/Components/Pagination";
 import { connect } from "react-redux";
-import * as actionCreators from "../../store/actions/actions";
+import * as actionCreators from "../../actions/actions";
 
 import { withRouter } from "react-router-dom";
 
