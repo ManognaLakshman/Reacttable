@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import * as actionTypes from '../actions/actions';
+import * as actionTypes from '../../../store/actions/actions';
 
 const initialState = {
     dep_details: {},

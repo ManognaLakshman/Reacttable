@@ -1,59 +1,52 @@
 import React from "react";
-import "./index.css";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
-import "./index.css";
+import "../../index.css";
 import debounce from "lodash/debounce";
-import Pagination from "./Pagination";
+import Pagination from "../../Common/Components/Pagination";
 import { connect } from "react-redux";
-import * as actionCreators from "./store/actions/actions";
+import * as actionCreators from "../../store/actions/actions";
 
 import { withRouter } from "react-router-dom";
 
-class DepSearch extends React.Component {
+class Department extends React.Component {
   componentWillUnmount() {
     this.props.onDepartmentUnmount();
   }
 
   fetchGridData = debounce(async (state, instance) => {
-    let search = "";
+    let search = null;
+
     const colTypeMapping = state.allDecoratedColumns.reduce(
       (accumulator, currentValue) => {
         return { ...accumulator, [currentValue.id]: currentValue.type };
       },
       {}
     );
-
-    let searchParams = [];
-
-    if (Object.keys(this.props.searchDetails).length > 0) {
-      let search1 = "( ";
-      search1 += this.applyFilterCriteria(
-        this.props.searchDetails,
-        colTypeMapping,
-        " or "
-      );
-      search1 += " )";
-      searchParams.push(search1);
+    const filterKeys = Object.keys(this.props.filterState);
+    if (filterKeys.length !== 0) {
+      search = "( ";
+      search += filterKeys
+        .map(key => {
+          let suffix = "";
+          if (colTypeMapping[key] && colTypeMapping[key] === "text") {
+            suffix = "*";
+          }
+          return this.props.filterState[key]
+            ? key + ":" + this.props.filterState[key] + suffix
+            : "";
+        })
+        .join(" and ");
+      search += " )";
     }
-    if (Object.keys(this.props.filterState).length > 0) {
-      let search2 = "( ";
-      search2 += this.applyFilterCriteria(
-        this.props.filterState,
-        colTypeMapping,
-        " and "
-      );
-      search2 += " )";
-      searchParams.push(search2);
-    }
-    search = searchParams.join(" and ");
+
     const params = {
       page: state.page,
       size: state.pageSize,
       sort: state.sorted["0"]
         ? state.sorted["0"].id +
-          "," +
-          (state.sorted["0"].desc === false ? "desc" : "asc")
+        "," +
+        (state.sorted["0"].desc === false ? "desc" : "asc")
         : "id",
       search
     };
@@ -78,23 +71,6 @@ class DepSearch extends React.Component {
       onChange();
     };
   };
-
-  applyFilterCriteria(filterData, colTypeMapping, joinType) {
-    const filterKeys = Object.keys(filterData);
-    let search = "";
-    if (filterKeys.length !== 0) {
-      search += filterKeys
-        .map(key => {
-          let suffix = "";
-          if (colTypeMapping[key] && colTypeMapping[key] === "text") {
-            suffix = "*";
-          }
-          return filterData[key] ? key + ":" + filterData[key] + suffix : "";
-        })
-        .join(joinType);
-    }
-    return search;
-  }
 
   render() {
     const dep_data = this.props.data;
@@ -180,7 +156,6 @@ class DepSearch extends React.Component {
     );
   }
 }
-
 const mapStateToProps = state => {
   return {
     data: state.depSearch.dep_data,
@@ -205,5 +180,7 @@ export default withRouter(
   connect(
     mapStateToProps,
     mapDispatchToProps
-  )(DepSearch)
+  )(Department)
 );
+
+//export default connect(mapStateToProps, mapDispatchToProps)(Department);

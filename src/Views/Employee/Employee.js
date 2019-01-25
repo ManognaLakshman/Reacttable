@@ -1,13 +1,13 @@
 import React from "react";
-import "./index.css";
+import "../../index.css";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
 import debounce from "lodash/debounce";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import Pagination from "./Pagination";
+import Pagination from "../../Common/Components/Pagination";
 import { connect } from "react-redux";
-import * as actionCreators from "./store/actions/actions";
+import * as actionCreators from "../../store/actions/actions";
 
 import { withRouter } from "react-router-dom";
 
@@ -90,8 +90,8 @@ class Employee extends React.Component {
       size: state.pageSize,
       sort: state.sorted["0"]
         ? state.sorted["0"].id +
-          "," +
-          (state.sorted["0"].desc === false ? "desc" : "asc")
+        "," +
+        (state.sorted["0"].desc === false ? "desc" : "asc")
         : "id",
       search
     };

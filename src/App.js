@@ -1,14 +1,12 @@
 import React from "react";
-import Employee from "./Employee";
-import Department from "./Department";
+import Employee from "./Views/Employee/Employee";
+import Department from "./Views/Department/Department";
 import { Route, Switch, Link } from "react-router-dom";
-import Search from "./Search";
+import Search from "./Views/DepartmentSearch/Search";
 import "./App.css";
 import Axios from "axios";
 import { connect } from "react-redux";
 import * as actionCreators from "./store/actions/actions";
-
-import { BrowserRouter } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 
 class App extends React.Component {
@@ -44,9 +42,39 @@ class App extends React.Component {
     window.location.href = "/";
   };
 
+  displayLinks = tabs => {
+    const tabView = tabs.map(tabObj =>
+      <li key={tabObj["id"]}>
+        <Link to={tabObj["path"]}>
+          <p>{tabObj["display"]}</p>
+        </Link>
+      </li>
+    )
+    return tabView;
+  }
+
   render() {
     let username = `UserName: ${this.props.userDetails.name}`;
     let view;
+    let tabs = [
+      {
+        "id": "emp",
+        "display": "Employee",
+        "path": "/"
+      },
+      {
+        "id": "dep",
+        "display": "Department",
+        "path": "/Department"
+      },
+      {
+        "id": "depsearch",
+        "display": "Dept Search",
+        "path": "Search"
+      }
+    ]
+
+
     if (this.props.isLoggedIn) {
       view = (
         <div>
@@ -55,25 +83,7 @@ class App extends React.Component {
           <header>
             <nav>
               <ul>
-                <li>
-                  <Link to="/">
-                    <p>Employee</p>
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/Department">
-                    <p>Department</p>
-                  </Link>
-                </li>
-                <li>
-                  <Link to="Search">
-                    <p>
-                      Search Department
-                      <br />
-                      Details
-                    </p>
-                  </Link>
-                </li>
+                {this.displayLinks(tabs)}
               </ul>
             </nav>
           </header>

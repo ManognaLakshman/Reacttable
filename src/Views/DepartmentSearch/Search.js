@@ -1,9 +1,9 @@
 import React from "react";
-import "./index.css";
+import "../../index.css";
 import DepartmentSearch from "./Department_search";
 import DepSearch from "./DepSearch";
 import { connect } from "react-redux";
-import * as actionCreators from "./store/actions/actions";
+import * as actionCreators from "../../store/actions/actions";
 
 import { withRouter } from "react-router-dom";
 
@@ -35,8 +35,8 @@ class Search extends React.Component {
       return (
         <DepartmentSearch
           handleDepartmentSearch={this.handleDepartmentSearch}
-        />
-      );
+        />)
+
     }
   };
 
