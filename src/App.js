@@ -43,7 +43,6 @@ class App extends React.Component {
   };
 
   displayLinks = tabs => {
-    console.log(this.props.userDetails.roles.indexOf("Leadership"));
     const tabView = tabs.map(tabObj =>
       <li key={tabObj["id"]}>
         <Link to={tabObj["path"]}>
@@ -58,26 +57,49 @@ class App extends React.Component {
     let username = `UserName: ${this.props.userDetails.name}`;
     let view;
     let tabs;
-    tabs = [
-      {
-        "id": "emp",
-        "display": "Employee",
-        "path": "/"
-      },
-      {
-        "id": "dep",
-        "display": "Department",
-        "path": "/Department"
-      },
-      {
-        "id": "depsearch",
-        "display": "Dept Search",
-        "path": "Search"
-      }
-    ]
-
-
     if (this.props.isLoggedIn) {
+      if (this.props.userDetails.roles.indexOf("Leadership") > -1) {
+        tabs = [
+          {
+            "id": "emp",
+            "display": "Employee",
+            "path": "/"
+          },
+          {
+            "id": "dep",
+            "display": "Department",
+            "path": "/Department"
+          },
+          {
+            "id": "depsearch",
+            "display": "Dept Search",
+            "path": "Search"
+          }
+        ]
+      }
+      else if (this.props.userDetails.roles.indexOf("QR") > -1) {
+        tabs = [
+          {
+            "id": "emp",
+            "display": "Employee",
+            "path": "/"
+          },
+          {
+            "id": "dep",
+            "display": "Department",
+            "path": "/Department"
+          }
+        ]
+      }
+      else if (this.props.userDetails.roles.indexOf("Processor") > -1) {
+        tabs = [
+          {
+            "id": "emp",
+            "display": "Employee",
+            "path": "/"
+          }
+        ]
+      }
       view = (
         <div>
           <p className="userNameView">{username} </p>
