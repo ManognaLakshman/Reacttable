@@ -8,8 +8,9 @@ import "react-datepicker/dist/react-datepicker.css";
 import Pagination from "../../Common/Components/Pagination";
 import { connect } from "react-redux";
 import * as actionCreators from "../../actions/actions";
-
 import { withRouter } from "react-router-dom";
+import { FaFilter } from "react-icons/fa";
+//import Fragment from "render-fragment";
 
 class Employee extends React.Component {
   componentWillUnmount() {
@@ -90,14 +91,18 @@ class Employee extends React.Component {
       size: state.pageSize,
       sort: state.sorted["0"]
         ? state.sorted["0"].id +
-        "," +
-        (state.sorted["0"].desc === false ? "desc" : "asc")
+          "," +
+          (state.sorted["0"].desc === false ? "desc" : "asc")
         : "id",
       search
     };
     this.props.onLoadData();
     this.props.onApiCall(params);
   }, 500);
+
+  filterConditionFunc = event => {
+    this.props.onFilterCondition();
+  };
 
   render() {
     const emp_data = this.props.emp_data;
@@ -108,7 +113,7 @@ class Employee extends React.Component {
         <ReactTable
           data={emp_data}
           freezeWhenExpanded={true}
-          filterable
+          filterable={this.props.filterCondition}
           pages={pages}
           Pagination={true}
           showPagination={true}
@@ -291,6 +296,16 @@ class Employee extends React.Component {
                   }
                 />
               )
+            },
+            {
+              Header: (
+                <div onClick={this.filterConditionFunc}>
+                  <FaFilter />
+                </div>
+              ),
+              filterable: false,
+              sortable: false,
+              accessor: "showDetails"
             }
           ]}
           defaultPageSize={5}
@@ -356,7 +371,8 @@ const mapStateToProps = state => {
     emp_data: state.emp.emp_data,
     isLoading: state.emp.isLoading,
     filterState: state.emp.filterState,
-    pages: state.emp.pages
+    pages: state.emp.pages,
+    filterCondition: state.emp.filterCondition
   };
 };
 
@@ -370,7 +386,8 @@ const mapDispatchToProps = dispatch => {
     onDeleteFilter: column =>
       dispatch(actionCreators.delete_filter_emp(column)),
     onEmployeeUnmount: () => dispatch(actionCreators.employee_unmount()),
-    onApiCall: params => dispatch(actionCreators.axiosCallSaga(params))
+    onApiCall: params => dispatch(actionCreators.axiosCallSaga(params)),
+    onFilterCondition: () => dispatch(actionCreators.filterConditionFunc())
   };
 };
 
@@ -380,5 +397,3 @@ export default withRouter(
     mapDispatchToProps
   )(Employee)
 );
-
-//export default connect(mapStateToProps, mapDispatchToProps)(Employee);
